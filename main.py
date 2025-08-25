@@ -1,3 +1,4 @@
+from logging import logger
 import re, time
 from datetime import datetime, timezone
 import httpx
@@ -15,7 +16,7 @@ LIST_URLS = [
     # dodaj inne, jeśli chcesz
 ]
 HEADERS = {"User-Agent": "KajetanyWatcher/1.0 (+you@example.com)"}
-RESULTS_FILE = "items_2.csv"
+RESULTS_FILE = "items.csv"
 
 
 def fetch(client, url):
@@ -46,7 +47,7 @@ def parse_list(html, base_url: str = "https://bip.nadarzyn.pl/73%2Ckomunikaty-i-
                 if not href or not text:
                     continue
                 full_url = urljoin(base_url, href)   # <— zamiast httpx.URL(..., base=...)
-                print(f"Found link in list: \n{title} \n -> {text} \n  -> {full_url}")
+                logger.info(f"Found link in list: \n{title} \n -> {text} \n  -> {full_url}")
                 
                 yield Elements(
                         main_title=title,
@@ -88,7 +89,7 @@ def run():
                 time.sleep(1.5)
 
     if new_data:
-        print(f"New items found! Saving to {RESULTS_FILE}")
+        logger.info(f"New items found! Saving to {RESULTS_FILE}")
         new.to_csv(RESULTS_FILE, index=False)
 
 if __name__ == "__main__":
