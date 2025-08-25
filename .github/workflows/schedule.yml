@@ -7,6 +7,9 @@ on:
         branches:
             - main
 
+permissions:
+  contents: write
+
 jobs:
     run-script-and-commit:
         runs-on: ubuntu-latest
@@ -14,6 +17,9 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+              with:
+                    fetch-depth: 0
+                    persist-credentials: true
 
             - name: Set up Python
               uses: actions/setup-python@v5
@@ -26,14 +32,18 @@ jobs:
                     pip install -r requirements.txt
 
             - name: Run main.py
-              run: python main.py
+              run:  python main.py
+
+            - name: Configure Git and auth
+              env:
+                    GH_PAT: ${{ secrets.MY_GITHUB_TOKEN }}
+              run: |
+                    git config user.name "github-actions[bot]"
+                    git config user.email "github-actions[bot]@users.noreply.github.com"
+                    git remote set-url origin https://x-access-token:${GH_PAT}@github.com/suuriko/Kajetany_BIP.git
 
             - name: Commit and push items.csv if changed
-              env:
-                    GH_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
               run: |
-                    git config --local user.name "github-actions[bot]"
-                    git config --local user.email "github-actions[bot]@users.noreply.github.com"
                     git add items.csv
                     if git diff --cached --quiet; then
                         echo "No changes to commit."
