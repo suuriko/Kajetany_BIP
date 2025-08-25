@@ -1,4 +1,4 @@
-from logging import logger
+import logging
 import re, time
 from datetime import datetime, timezone
 import httpx
@@ -18,6 +18,7 @@ LIST_URLS = [
 HEADERS = {"User-Agent": "KajetanyWatcher/1.0 (+you@example.com)"}
 RESULTS_FILE = "items.csv"
 
+logger = logging.getLogger("main")
 
 def fetch(client, url):
     r = client.get(url, headers=HEADERS, timeout=20)
@@ -76,9 +77,10 @@ def run():
             r = fetch(client, list_url)
             for item in parse_list(r.text, str(r.url)):
                 if not past.empty and item.url in past["url"].values:
-                    break
+                    continue
                 else:
                     new_data = True
+                    print(f"new_data: {new_data}")
                     new_row = pd.DataFrame.from_records([item.__dict__])
 
                     if new.empty:
