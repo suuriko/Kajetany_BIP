@@ -1,0 +1,5 @@
+httpx
+selectolax
+pypdf
+pydantic
+pandas
