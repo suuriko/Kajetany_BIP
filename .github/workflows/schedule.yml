@@ -2,7 +2,7 @@ name: Scheduled Python Job
 
 on:
     schedule:
-        - cron: '0 8 * * 1,5' # 10am Poland time (UTC+2), so 8am UTC on Monday and Friday
+        - cron: '0 8 * * *' # 10am Poland time (UTC+2), so 8am UTC every day
     push:
         branches:
             - main
@@ -32,6 +32,9 @@ jobs:
                     pip install -r requirements.txt
 
             - name: Run main.py
+              env:
+                SMTP_USER: ${{ secrets.SMTP_USER }}
+                SMTP_PASS: ${{ secrets.SMTP_PASS }}
               run:  python main.py
 
             - name: Configure Git and auth

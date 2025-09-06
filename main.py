@@ -1,12 +1,9 @@
 import logging
-import re, time
-from datetime import datetime
-import httpx
-from selectolax.parser import HTMLParser
 from urllib.parse import urljoin
 import pandas as pd
 
 from elements import Elements
+from mail_delivery_service import send_to_group
 from parser import parse
 
 
@@ -30,6 +27,8 @@ def run():
         logger.info(f"New items found! Saving to {RESULTS_FILE}")
         all_data = pd.concat([past_data, new_data], ignore_index=True)
         all_data.to_csv(RESULTS_FILE, index=False)
+
+        send_to_group(new_data)
 
 if __name__ == "__main__":
     run()
