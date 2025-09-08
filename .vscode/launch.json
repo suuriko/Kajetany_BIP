@@ -14,8 +14,8 @@
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
-      "module": "src.parser.parser",
-      "name": "Debug Parser",
+      "module": "src.crawler.crawler",
+      "name": "Debug Crawler",
       "python": "${workspaceFolder}/venv/bin/python",
       "request": "launch",
       "type": "debugpy"

@@ -8,3 +8,5 @@ class Elements(BaseModel):
     title: str
     url: str
     published_at: datetime.date | None
+    created_at: datetime.date | None
+    last_modified_at: datetime.date | None
