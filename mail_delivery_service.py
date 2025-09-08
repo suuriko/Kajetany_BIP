@@ -5,7 +5,7 @@ import pandas as pd
 
 SMTP_USER = os.getenv("SMTP_USER")        # Twój Gmail
 SMTP_PASS = os.getenv("SMTP_PASS")        # App Password (16 znaków)
-TO_GROUP  = "kajetany-bip@googlegroups.com"
+TO_GROUP  = os.getenv("TO_GROUP", "suuriko@gmail.com")
 
 def generate_email_content_html(new_entries: pd.DataFrame):
     if new_entries.empty:

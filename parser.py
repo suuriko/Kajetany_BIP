@@ -1,4 +1,5 @@
 
+import io
 import logging
 import re, time
 from datetime import datetime
@@ -7,6 +8,8 @@ import httpx
 from selectolax.parser import HTMLParser
 from urllib.parse import urljoin
 import pandas as pd
+from pypdf import PdfReader
+import io
 
 from elements import Elements
 
@@ -19,6 +22,17 @@ LIST_URLS = [
 HEADERS = {"User-Agent": "KajetanyWatcher/1.0 (+you@example.com)"}
 
 logger = logging.getLogger("parser")
+i = 0
+
+
+def pdf_text_has_kajetany(content_bytes):
+    global i
+    i+=1
+    print(f"PDF check {i}")
+
+    reader = PdfReader(io.BytesIO(content_bytes))
+    txt = "".join([p.extract_text() or "" for p in reader.pages])
+    return bool(KAJETANY_RE.search(txt))
 
 
 def fetch(client, url):
@@ -35,30 +49,38 @@ def extract_date(text: str):
             return None
     return None
 
-def parse_list(html, base_url: str = "https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia"):
-    # dopasuj do realnego markupu tej sekcji BIP
-    # tu przykład: szukamy linków z tytułami
+def parse_list(html, base_url: str = "https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", client=None):
     dom = HTMLParser(html)
     for item in dom.css("#PageContent div.obiekt"):
+
         if "Kajetan" in item.text():
-            title = item.css_first("h3").text()
+            yield get_parsing_details(item, base_url)
+        else:
             for a in item.css("a"):  # zawęź selektor po rozpoznaniu drzewa
                 href = a.attributes.get("href", "")
-                text = (a.text() or "").strip()
-                if not href or not text:
+                if not href.lower().endswith(".pdf"):
                     continue
-                full_url = urljoin(base_url, href)   # <— zamiast httpx.URL(..., base=...)
-                logger.info(f"Found link in list: \n{title} \n -> {text} \n  -> {full_url}")
-                
-                yield Elements(
-                        main_title=title,
-                        title=text,
-                        url=full_url,
-                        published_at=extract_date(title)
-                )
+                pdf_url = urljoin(base_url, href)
+                pr = fetch(client, pdf_url)
+                if pdf_text_has_kajetany(pr.content):
+                    yield get_parsing_details(item, base_url)
 
-def html_has_kajetany(text):
-    return bool(KAJETANY_RE.search(text))
+def get_parsing_details(item, base_url):
+    title = item.css_first("h3").text()
+    for a in item.css("a"):  # zawęź selektor po rozpoznaniu drzewa
+        href = a.attributes.get("href", "")
+        text = (a.text() or "").strip()
+        if not href or not text:
+            continue
+        full_url = urljoin(base_url, href)   # <— zamiast httpx.URL(..., base=...)
+        logger.info(f"Found link in list: \n{title} \n -> {text} \n  -> {full_url}")
+        
+        return Elements(
+                main_title=title,
+                title=text,
+                url=full_url,
+                published_at=extract_date(title)
+        )
 
 def parse(past_data: pd.DataFrame) -> Union[pd.DataFrame, None]:
 
@@ -66,7 +88,7 @@ def parse(past_data: pd.DataFrame) -> Union[pd.DataFrame, None]:
     with httpx.Client(follow_redirects=True) as client:
         for list_url in LIST_URLS:
             r = fetch(client, list_url)
-            for item in parse_list(r.text, str(r.url)):
+            for item in parse_list(r.text, str(r.url), client):
                 if not past_data.empty and item.url in past_data["url"].values:
                     continue
                 else:

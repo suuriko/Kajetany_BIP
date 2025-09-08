@@ -3,3 +3,4 @@ selectolax
 pypdf
 pydantic
 pandas
+pypdf

@@ -1,8 +1,9 @@
 name: Scheduled Python Job
 
 on:
-    schedule:
-        - cron: '0 8 * * *' # 10am Poland time (UTC+2), so 8am UTC every day
+    push:
+        branches:
+            - dev
 
 permissions:
   contents: write
@@ -30,8 +31,9 @@ jobs:
 
             - name: Run main.py
               env:
-                SMTP_USER: ${{ secrets.SMTP_USER }}
-                SMTP_PASS: ${{ secrets.SMTP_PASS }}
+                SMTP_USER: ${{ secrets.DEV_SMTP_USER }}
+                SMTP_PASS: ${{ secrets.DEV_SMTP_PASS }}
+                TO_GROUP: ${{ secrets.DEV_TO_GROUP }}
               run:  python main.py
 
             - name: Configure Git and auth
@@ -49,5 +51,5 @@ jobs:
                         echo "No changes to commit."
                     else
                         git commit -m "Update items.csv [auto]"
-                        git push origin main
+                        git push origin dev
                     fi
