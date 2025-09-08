@@ -1,15 +1,15 @@
-
 import io
 import logging
-import re, time
+import re
+import time
 from datetime import datetime
 from typing import Union
-import httpx
-from selectolax.parser import HTMLParser
 from urllib.parse import urljoin
+
+import httpx
 import pandas as pd
 from pypdf import PdfReader
-import io
+from selectolax.parser import HTMLParser
 
 from elements import Elements
 
@@ -27,7 +27,7 @@ i = 0
 
 def pdf_text_has_kajetany(content_bytes):
     global i
-    i+=1
+    i += 1
     print(f"PDF check {i}")
 
     reader = PdfReader(io.BytesIO(content_bytes))
@@ -40,8 +40,9 @@ def fetch(client, url):
     r.raise_for_status()
     return r
 
+
 def extract_date(text: str):
-    match = re.search(r'\b(\d{2}\.\d{2}\.\d{4})\b', text)
+    match = re.search(r"\b(\d{2}\.\d{2}\.\d{4})\b", text)
     if match:
         try:
             return datetime.strptime(match.group(1), "%d.%m.%Y").date()
@@ -49,7 +50,12 @@ def extract_date(text: str):
             return None
     return None
 
-def parse_list(html, base_url: str = "https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", client=None):
+
+def parse_list(
+    html,
+    base_url: str = "https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia",
+    client = None,
+):
     dom = HTMLParser(html)
     for item in dom.css("#PageContent div.obiekt"):
 
@@ -65,6 +71,7 @@ def parse_list(html, base_url: str = "https://bip.nadarzyn.pl/73%2Ckomunikaty-i-
                 if pdf_text_has_kajetany(pr.content):
                     yield get_parsing_details(item, base_url)
 
+
 def get_parsing_details(item, base_url):
     title = item.css_first("h3").text()
     for a in item.css("a"):  # zawęź selektor po rozpoznaniu drzewa
@@ -72,15 +79,13 @@ def get_parsing_details(item, base_url):
         text = (a.text() or "").strip()
         if not href or not text:
             continue
-        full_url = urljoin(base_url, href)   # <— zamiast httpx.URL(..., base=...)
+        full_url = urljoin(base_url, href)  # <— zamiast httpx.URL(..., base=...)
         logger.info(f"Found link in list: \n{title} \n -> {text} \n  -> {full_url}")
-        
+
         return Elements(
-                main_title=title,
-                title=text,
-                url=full_url,
-                published_at=extract_date(title)
+            main_title=title, title=text, url=full_url, published_at=extract_date(title)
         )
+
 
 def parse(past_data: pd.DataFrame) -> Union[pd.DataFrame, None]:
 
@@ -92,7 +97,7 @@ def parse(past_data: pd.DataFrame) -> Union[pd.DataFrame, None]:
                 if not past_data.empty and item.url in past_data["url"].values:
                     continue
                 else:
-                    logger.info(f"New data added")
+                    logger.info("New data added")
                     new_row = pd.DataFrame.from_records([item.__dict__])
 
                     if new_data.empty:

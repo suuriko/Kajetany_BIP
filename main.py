@@ -1,11 +1,10 @@
 import logging
-from urllib.parse import urljoin
+from parser import parse
+
 import pandas as pd
 
 from elements import Elements
 from mail_delivery_service import send_to_group
-from parser import parse
-
 
 RESULTS_FILE = "items.csv"
 
@@ -21,7 +20,7 @@ def read_past_csv():
 
 def run():
     past_data = read_past_csv()
-    new_data = parse(past_data) 
+    new_data = parse(past_data)
 
     if not new_data.empty:
         logger.info(f"New items found! Saving to {RESULTS_FILE}")
@@ -29,6 +28,7 @@ def run():
         all_data.to_csv(RESULTS_FILE, index=False)
 
         send_to_group(new_data)
+
 
 if __name__ == "__main__":
     run()

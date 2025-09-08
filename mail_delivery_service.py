@@ -1,11 +1,14 @@
-import os, smtplib, ssl
+import os
+import smtplib
+import ssl
 from email.message import EmailMessage
 
 import pandas as pd
 
-SMTP_USER = os.getenv("SMTP_USER")        # Twój Gmail
-SMTP_PASS = os.getenv("SMTP_PASS")        # App Password (16 znaków)
-TO_GROUP  = os.getenv("TO_GROUP", "suuriko@gmail.com")
+SMTP_USER = os.getenv("SMTP_USER")  # Twój Gmail
+SMTP_PASS = os.getenv("SMTP_PASS")  # App Password (16 znaków)
+TO_GROUP = os.getenv("TO_GROUP", "suuriko@gmail.com")
+
 
 def generate_email_content_html(new_entries: pd.DataFrame):
     if new_entries.empty:
@@ -24,7 +27,7 @@ def generate_email_content_html(new_entries: pd.DataFrame):
         email_html += f"""
         <h4 style="margin-bottom: 15px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">{row['main_title']}</h4>
         <ul style="margin: 5px 0 0 20px; padding: 0;">"""
-        for link in row['url']:
+        for link in row["url"]:
             email_html += f"""
             <li style="margin-bottom: 5px;">
                 <a href="{link}" style="color: #007bff; text-decoration: none;">{link}</a>
@@ -46,10 +49,10 @@ def send_to_group(data: pd.DataFrame):
     email_content = generate_email_content_html(data)
 
     msg = EmailMessage()
-    msg["Subject"] = f"[BIP Bot] Nowe wpisy dla Kajetan w BIP Nadarzyn"
+    msg["Subject"] = "[BIP Bot] Nowe wpisy dla Kajetan w BIP Nadarzyn"
     msg["From"] = SMTP_USER
     msg["To"] = TO_GROUP
-    msg.set_content(email_content, subtype='html')
+    msg.set_content(email_content, subtype="html")
 
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as s:
