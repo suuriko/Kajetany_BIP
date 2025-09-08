@@ -23,7 +23,7 @@ def run():
     past_data = read_past_csv()
     crawler = Crawler(
         [
-            ("https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", BipNadarzynParser()),
+            ("https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", BipNadarzynParser),
             # ("https://bip.nadarzyn.pl/975,procedury-planistyczne-w-toku", AnotherParser()),
         ]
     )
