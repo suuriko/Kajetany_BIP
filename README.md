@@ -30,13 +30,8 @@
 git clone https://github.com/suuriko/Kajetany_BIP.git
 cd Kajetany_BIP
 python3 -m venv venv
-source venv/bin/activate
-pip install -e ".[dev]"   # Note the quotes for zsh
-```
 
-### **Daily Development Commands:**
-```bash
-# Activate environment
+#Activate environment
 # macOS/Linux:
 source venv/bin/activate
 # Windows (PowerShell):
@@ -44,6 +39,12 @@ source venv/bin/activate
 # Windows (CMD):
 venv\Scripts\activate
 
+# Install dependencies
+pip install -e ".[dev]"   # Note the quotes for zsh
+```
+
+### **Daily Development Commands:**
+```bash
 # Check and fix code
 ruff check .              # Lint code
 ruff check . --fix        # Auto-fix issues
