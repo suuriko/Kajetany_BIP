@@ -76,22 +76,23 @@ class BipNadarzynParser(BaseParser):
     Searches for content related to Kajetany in both HTML text and PDF documents.
     """
 
-    # Class constants for better maintainability
-    CONTENT_SELECTOR = "#PageContent div.obiekt"
     SEARCH_PATTERN = re.compile(r"\bKajetan\w*\b", re.IGNORECASE)
 
     def parse_list(self, html: str) -> Generator[Optional[Elements], None, None]:
         """Parse the main list page for relevant items."""
         dom = HTMLParser(html)
-        for item in dom.css(self.CONTENT_SELECTOR):
+        for item in dom.css("#PageContent div.obiekt"):
+            # First, match directly in HTML text
             if self._text_matches_pattern(item.text()):
                 yield self.parse_item(item)
-            else:
-                # Check PDF links for matches
-                yield from self._check_pdf_links(item)
+                continue
 
-    def _check_pdf_links(self, item: Node) -> Generator[Optional[Elements], None, None]:
-        """Check PDF links within an item for pattern matches."""
+            # Otherwise, fall back to checking linked PDFs
+            if self._pdf_links_have_match(item):
+                yield self.parse_item(item)
+
+    def _pdf_links_have_match(self, item: Node) -> bool:
+        """Return True if any PDF linked within the item contains the search pattern."""
         for a in item.css("a"):
             href = a.attributes.get("href")
             if href is None or not href.lower().endswith(".pdf"):
@@ -100,13 +101,12 @@ class BipNadarzynParser(BaseParser):
             self.i += 1
             self.logger.debug(f"PDF check {self.i}")
             if self._pdf_text_has_match(pdf_url):
-                yield self.parse_item(item)
-                return  # Only yield once per item if we find a match. parse_item will get all links anyway.
+                return True
+        return False
 
     def parse_item(self, item: Node) -> Optional[Elements]:
         """Parse a single item node into an Elements object."""
         title = self._get_node_text_or_default(item.css_first("h3")) or "Brak tytułu"
-
         published_at = extract_datetime(
             self._get_node_text_or_default(item.css_first(".data_publikacji .system_metryka_wartosc"))
         )
