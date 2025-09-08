@@ -1,0 +1,104 @@
+{
+  "tasks": [
+    {
+      "args": [
+        "-m",
+        "ruff",
+        "check",
+        "."
+      ],
+      "command": "${workspaceFolder}/venv/bin/python",
+      "group": {
+        "isDefault": false,
+        "kind": "test"
+      },
+      "label": "Ruff: Check",
+      "presentation": {
+        "echo": true,
+        "focus": false,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "problemMatcher": [],
+      "type": "shell"
+    },
+    {
+      "args": [
+        "-m",
+        "ruff",
+        "check",
+        ".",
+        "--fix"
+      ],
+      "command": "${workspaceFolder}/venv/bin/python",
+      "group": {
+        "isDefault": false,
+        "kind": "build"
+      },
+      "label": "Ruff: Fix",
+      "presentation": {
+        "echo": true,
+        "focus": false,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "problemMatcher": [],
+      "type": "shell"
+    },
+    {
+      "args": [
+        "-m",
+        "ruff",
+        "format",
+        "."
+      ],
+      "command": "${workspaceFolder}/venv/bin/python",
+      "group": {
+        "isDefault": false,
+        "kind": "build"
+      },
+      "label": "Ruff: Format",
+      "presentation": {
+        "echo": true,
+        "focus": false,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "problemMatcher": [],
+      "type": "shell"
+    },
+    {
+      "args": [
+        "main.py"
+      ],
+      "command": "${workspaceFolder}/venv/bin/python",
+      "group": {
+        "isDefault": true,
+        "kind": "build"
+      },
+      "label": "Run Main Script",
+      "presentation": {
+        "echo": true,
+        "focus": false,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "problemMatcher": [],
+      "type": "shell"
+    },
+    {
+      "command": "./setup.sh",
+      "group": "build",
+      "label": "Setup Development Environment",
+      "presentation": {
+        "echo": true,
+        "focus": false,
+        "panel": "shared",
+        "reveal": "always"
+      },
+      "problemMatcher": [],
+      "type": "shell"
+    }
+  ],
+  "version": "2.0.0"
+}

@@ -25,7 +25,7 @@ def generate_email_content_html(new_entries: pd.DataFrame):
 
     for _, row in grouped.iterrows():
         email_html += f"""
-        <h4 style="margin-bottom: 15px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">{row['main_title']}</h4>
+        <h4 style="margin-bottom: 15px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">{row["main_title"]}</h4>
         <ul style="margin: 5px 0 0 20px; padding: 0;">"""
         for link in row["url"]:
             email_html += f"""

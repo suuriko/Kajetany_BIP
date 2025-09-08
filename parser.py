@@ -54,11 +54,10 @@ def extract_date(text: str):
 def parse_list(
     html,
     base_url: str = "https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia",
-    client = None,
+    client=None,
 ):
     dom = HTMLParser(html)
     for item in dom.css("#PageContent div.obiekt"):
-
         if "Kajetan" in item.text():
             yield get_parsing_details(item, base_url)
         else:
@@ -82,13 +81,10 @@ def get_parsing_details(item, base_url):
         full_url = urljoin(base_url, href)  # <— zamiast httpx.URL(..., base=...)
         logger.info(f"Found link in list: \n{title} \n -> {text} \n  -> {full_url}")
 
-        return Elements(
-            main_title=title, title=text, url=full_url, published_at=extract_date(title)
-        )
+        return Elements(main_title=title, title=text, url=full_url, published_at=extract_date(title))
 
 
 def parse(past_data: pd.DataFrame) -> Union[pd.DataFrame, None]:
-
     new_data = pd.DataFrame(columns=[Elements.model_fields.keys()])
     with httpx.Client(follow_redirects=True) as client:
         for list_url in LIST_URLS:

@@ -1,21 +1,48 @@
-### **For Daily Development:**
+# Kajetany BIP Project
+
+## 🚀 Quick Start for New Developers
+
+### **VS Code Setup (Recommended)**
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/suuriko/Kajetany_BIP.git
+   cd Kajetany_BIP
+   ```
+
+2. Open in VS Code:
+   ```bash
+   code .
+   ```
+
+3. **Install recommended extensions** when prompted, or manually install:
+   - Ruff (charliermarsh.ruff)
+   - Python (ms-python.python)
+   - Pylance (ms-python.vscode-pylance)
+   - EditorConfig (editorconfig.editorconfig)
+
+4. Run setup script:
+   ```bash
+   ./setup.sh
+   ```
+
+### **Manual Setup (Alternative)**
+```bash
+git clone https://github.com/suuriko/Kajetany_BIP.git
+cd Kajetany_BIP
+python3 -m venv venv
+source venv/bin/activate
+pip install -e ".[dev]"   # Note the quotes for zsh
+```
+
+### **Daily Development Commands:**
 ```bash
 # Activate environment
 source venv/bin/activate
 
-# Format and check your code
-black .
-isort .
-ruff check . --fix
-```
-
-### **For New Developers:**
-They just need to run:
-```bash
-git clone <repository>
-cd Kajetany_BIP
-source venv/bin/activate  # or create new venv
-pip install -e ".[dev]"   # Note the quotes for zsh
+# Check and fix code
+ruff check .              # Lint code
+ruff check . --fix        # Auto-fix issues
+ruff format .             # Format code
 ```
 
 ### **Installation Options:**
@@ -29,9 +56,16 @@ pip install -e ".[dev]"
 
 ## 🎯 **Key Benefits:**
 
-- **Consistent formatting** - Black enforces 4-space indentation automatically
-- **Clean imports** - isort organizes your imports consistently
-- **Code quality** - Ruff catches potential issues and style problems
-- **Easy setup** - New developers get everything with one command
+- **🔧 VS Code Integration** - Automatic extension recommendations and workspace settings
+- **📏 Consistent formatting** - Ruff enforces 4-space indentation and 120-char line limits
+- **🧹 Code quality** - Real-time linting with Ruff catches issues as you type
+- **⚡ Fast setup** - One-command setup with `./setup.sh`
+- **🚀 Modern tooling** - Uses latest Python development standards
 
-Your code formatting and linting tools are now properly configured and working! 🎉
+## 🛠 **VS Code Features Included:**
+
+- **Extension recommendations** - Automatically suggests required extensions
+- **Workspace settings** - Pre-configured for consistent development
+- **Debug configurations** - Ready-to-use debug setups for main script
+- **Tasks** - Pre-configured tasks for linting, formatting, and running
+- **Auto-formatting** - Code formats automatically on save

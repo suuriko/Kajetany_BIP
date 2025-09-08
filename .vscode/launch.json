@@ -1,0 +1,25 @@
+{
+  "configurations": [
+    {
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "name": "Run Main Script",
+      "program": "${workspaceFolder}/main.py",
+      "python": "${workspaceFolder}/venv/bin/python",
+      "request": "launch",
+      "type": "debugpy"
+    },
+    {
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "module": "parser",
+      "name": "Debug Parser",
+      "python": "${workspaceFolder}/venv/bin/python",
+      "request": "launch",
+      "type": "debugpy"
+    }
+  ],
+  "version": "0.2.0"
+}
