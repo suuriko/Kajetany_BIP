@@ -42,7 +42,7 @@ source venv/bin/activate
 # Windows (PowerShell):
 .\venv\Scripts\Activate.ps1
 # Windows (CMD):
-venv\Scripts\activate.bat
+venv\Scripts\activate
 
 # Check and fix code
 ruff check .              # Lint code
