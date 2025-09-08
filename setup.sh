@@ -24,9 +24,9 @@ echo "🔄 Activating virtual environment..."
 source venv/bin/activate
 
 # Install dependencies
-echo "📚 Installing dependencies..."
+echo "📚 Installing dependencies and development tools..."
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -e ".[dev]"
 
 # Install pre-commit hooks
 echo "🪝 Setting up pre-commit hooks..."
@@ -57,4 +57,5 @@ echo ""
 echo "🔧 Available commands:"
 echo "   - black . (format code)"
 echo "   - isort . (sort imports)"
-echo "   - ruff . (lint code)"
+echo "   - ruff check . (lint code)"
+echo "   - ruff check . --fix (auto-fix issues)"
