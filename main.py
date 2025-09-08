@@ -2,9 +2,10 @@ import logging
 
 import pandas as pd
 
+from crawler.crawler import Crawler
+from crawler.parser import BipNadarzynParser
 from src.mail_delivery_service import send_to_group
 from src.models.elements import Elements
-from src.parser.parser import parse
 
 RESULTS_FILE = "items.csv"
 
@@ -20,7 +21,13 @@ def read_past_csv():
 
 def run():
     past_data = read_past_csv()
-    new_data = parse(past_data)
+    crawler = Crawler(
+        [
+            ("https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", BipNadarzynParser()),
+            # ("https://bip.nadarzyn.pl/975,procedury-planistyczne-w-toku", AnotherParser()),
+        ]
+    )
+    new_data = crawler.crawl(past_data)
 
     if not new_data.empty:
         logger.info(f"New items found! Saving to {RESULTS_FILE}")
