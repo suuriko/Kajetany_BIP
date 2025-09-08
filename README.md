@@ -37,13 +37,10 @@ pip install -e ".[dev]"   # Note the quotes for zsh
 ### **Daily Development Commands:**
 ```bash
 # Activate environment
-
 # macOS/Linux:
 source venv/bin/activate
-
 # Windows (PowerShell):
 .\venv\Scripts\Activate.ps1
-
 # Windows (CMD):
 venv\Scripts\activate.bat
 
