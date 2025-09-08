@@ -2,8 +2,8 @@ import logging
 
 import pandas as pd
 
-from crawler.crawler import Crawler
-from crawler.parser import BipNadarzynParser
+from src.crawler.crawler import Crawler
+from src.crawler.parser import BipNadarzynParser
 from src.mail_delivery_service import send_to_group
 from src.models.elements import Elements
 

@@ -1,5 +1,6 @@
 import logging
 import time
+from typing import Sequence
 
 import pandas as pd
 
@@ -7,40 +8,60 @@ from src.crawler.http_client import HttpClient
 from src.crawler.parser import BaseParser, BipNadarzynParser
 from src.models.elements import Elements
 
-logger = logging.getLogger("crawler")
-
 
 class Crawler:
-    def __init__(self, urls_with_parsers: list[tuple[str, type[BaseParser]]]):
-        self.logger = logging.getLogger("parser")
-        self.i = 0
+    """Orchestrates web crawling using multiple parsers.
+
+    Manages HTTP client lifecycle and coordinates parsing of multiple URLs
+    with their respective parser implementations.
+    """
+
+    def __init__(self, urls_with_parsers: Sequence[tuple[str, type[BaseParser]]]) -> None:
+        """Initialize crawler with URL-parser mappings.
+
+        Args:
+            urls_with_parsers: List of (URL, parser_class) tuples
+        """
+        self.logger = logging.getLogger("crawler")
         self.urls_with_parsers = urls_with_parsers
 
     def crawl(self, past_data: pd.DataFrame) -> pd.DataFrame:
-        new_data = pd.DataFrame(columns=[Elements.model_fields.keys()])
+        """Crawl all configured URLs and return new items.
+
+        Args:
+            past_data: DataFrame containing previously found items
+
+        Returns:
+            DataFrame containing newly found items
+        """
+        new_items = []
 
         with HttpClient() as client:
             for list_url, parser_class in self.urls_with_parsers:
-                r = client.fetch(list_url)
-                parser = parser_class(http_client=client, base_url=list_url)
-                for item in parser.parse_list(r.text):
-                    if item is None:
-                        continue
+                try:
+                    response = client.fetch(list_url)
+                    parser = parser_class(http_client=client, base_url=list_url)
 
-                    if not past_data.empty and item.url in past_data["url"].values:
-                        continue
+                    for item in parser.parse_list(response.text):
+                        if item is None:
+                            continue
 
-                    logger.info("New data added")
-                    new_row = pd.DataFrame.from_records([item.__dict__])
+                        if self._is_duplicate(item, past_data):
+                            continue
 
-                    if new_data.empty:
-                        new_data = new_row.copy()
-                    else:
-                        new_data = pd.concat([new_data, new_row], ignore_index=True)
+                        self.logger.info(f"New item found: {item.title}")
+                        new_items.append(item.__dict__)
+                        time.sleep(1.5)  # Be respectful to the server
 
-                    time.sleep(1.5)
+                except Exception as e:
+                    self.logger.error(f"Failed to crawl {list_url}: {e}")
+                    continue
 
-        return new_data
+        return pd.DataFrame(new_items) if new_items else pd.DataFrame(columns=list(Elements.model_fields.keys()))
+
+    def _is_duplicate(self, item: Elements, past_data: pd.DataFrame) -> bool:
+        """Check if item already exists in past data."""
+        return not past_data.empty and item.url in past_data["url"].values
 
 
 if __name__ == "__main__":
