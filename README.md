@@ -38,7 +38,7 @@ pip install -e ".[dev]"   # Note the quotes for zsh
 ```bash
 # Activate environment
 
-# macOS/Linux shown above
+# macOS/Linux:
 source venv/bin/activate
 
 # Windows (PowerShell):
