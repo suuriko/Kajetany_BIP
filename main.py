@@ -1,10 +1,10 @@
 import logging
-from parser import parse
 
 import pandas as pd
 
-from elements import Elements
-from mail_delivery_service import send_to_group
+from src.mail_delivery_service import send_to_group
+from src.models.elements import Elements
+from src.parser.parser import parse
 
 RESULTS_FILE = "items.csv"
 

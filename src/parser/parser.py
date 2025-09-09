@@ -11,7 +11,7 @@ import pandas as pd
 from pypdf import PdfReader
 from selectolax.parser import HTMLParser
 
-from elements import Elements
+from src.models.elements import Elements
 
 KAJETANY_RE = re.compile(r"\bKajetan\w*\b", re.IGNORECASE)
 LIST_URLS = [

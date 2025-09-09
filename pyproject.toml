@@ -22,11 +22,16 @@ dev = [
 ]
 
 [tool.setuptools]
-py-modules = ["main", "parser", "mail_delivery_service", "elements"]
+py-modules = ["main"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
 
 [tool.ruff]
 target-version = "py38"
 line-length = 120
+src = ["src", "."]
 
 [tool.ruff.format]
 indent-style = "space"
@@ -37,7 +42,7 @@ select = ["E", "F", "W", "I"]
 ignore = ["E203"]
 
 [tool.ruff.lint.per-file-ignores]
-"mail_delivery_service.py" = ["E501"]  # Allow long lines in HTML email templates
+"src/mail_delivery_service.py" = ["E501"]  # Allow long lines in HTML email templates
 
 [tool.mypy]
 python_version = "3.8"

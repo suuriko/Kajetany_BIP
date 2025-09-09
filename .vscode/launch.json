@@ -14,7 +14,7 @@
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
-      "module": "parser",
+      "module": "src.parser.parser",
       "name": "Debug Parser",
       "python": "${workspaceFolder}/venv/bin/python",
       "request": "launch",
