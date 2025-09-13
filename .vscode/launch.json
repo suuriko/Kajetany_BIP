@@ -4,9 +4,19 @@
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
-      "name": "Run Main Script",
+      "name": "[Win] Run Main Script",
       "program": "${workspaceFolder}/main.py",
-      "python": "${workspaceFolder}/venv/bin/python",
+      "python": "${workspaceFolder}/venv/Scripts/python",
+      "request": "launch",
+      "type": "debugpy",
+    },
+    {
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "module": "src.crawler.crawler",
+      "name": "[Win] Debug Crawler",
+      "python": "${workspaceFolder}/venv/Scripts/python",
       "request": "launch",
       "type": "debugpy"
     },
@@ -14,12 +24,22 @@
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
+      "name": "[Mac] Run Main Script",
+      "program": "${workspaceFolder}/main.py",
+      "python": "${workspaceFolder}/venv/bin/python",
+      "request": "launch",
+      "type": "debugpy",
+    },
+    {
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
       "module": "src.crawler.crawler",
-      "name": "Debug Crawler",
+      "name": "[Mac] Debug Crawler",
       "python": "${workspaceFolder}/venv/bin/python",
       "request": "launch",
       "type": "debugpy"
-    }
+    },
   ],
   "version": "0.2.0"
 }
