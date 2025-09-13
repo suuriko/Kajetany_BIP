@@ -8,7 +8,7 @@
       "program": "${workspaceFolder}/main.py",
       "python": "${workspaceFolder}/venv/Scripts/python",
       "request": "launch",
-      "type": "debugpy",
+      "type": "debugpy"
     },
     {
       "console": "integratedTerminal",
@@ -28,7 +28,7 @@
       "program": "${workspaceFolder}/main.py",
       "python": "${workspaceFolder}/venv/bin/python",
       "request": "launch",
-      "type": "debugpy",
+      "type": "debugpy"
     },
     {
       "console": "integratedTerminal",
@@ -39,7 +39,7 @@
       "python": "${workspaceFolder}/venv/bin/python",
       "request": "launch",
       "type": "debugpy"
-    },
+    }
   ],
   "version": "0.2.0"
 }
