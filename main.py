@@ -35,6 +35,9 @@ def run():
         all_data.to_csv(RESULTS_FILE, index=False)
 
         send_to_group(new_data)
+        logger.info("Email sent!")
+    else:
+        logger.info("No new items found.")
 
 
 if __name__ == "__main__":
