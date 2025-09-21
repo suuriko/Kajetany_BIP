@@ -6,7 +6,7 @@ from typing import Generator, Optional
 from pypdf import PdfReader
 from selectolax.lexbor import LexborNode
 
-from src.crawler.http_client import HttpClient
+from src.crawler.http_client import HttpClient, HttpResponse
 from src.models.elements import Elements
 
 
@@ -28,6 +28,17 @@ class BaseParser(abc.ABC):
         self.http_client = http_client
         self.base_url = base_url
         self.i = 0
+
+    def fetch(self, url: str) -> HttpResponse:
+        """Fetch the content of the given URL. Optionally transform it before returning.
+
+        Args:
+            url: URL to fetch
+
+        Returns:
+            HTTP response object
+        """
+        return self.http_client.fetch(url)
 
     @abc.abstractmethod
     def parse_list(self, html: str) -> Generator[Optional[Elements], None, None]:

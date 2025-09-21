@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 
 from src.crawler.datetime_extractor import extract_datetime
-from src.crawler.parsers.base_parser import BaseParser
+from src.crawler.old.base_parser import BaseParser
 from src.models.elements import Elements
 
 
