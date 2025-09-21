@@ -5,7 +5,8 @@ from typing import Sequence
 import pandas as pd
 
 from src.crawler.http_client import HttpClient
-from src.crawler.parser import BaseParser, BipNadarzynParser
+from src.crawler.parsers.base_parser import BaseParser
+from src.crawler.parsers.bip_nadarzyn_list_parser import BipNadarzynListParser
 from src.models.elements import Elements
 
 
@@ -66,5 +67,5 @@ class Crawler:
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    crawler = Crawler([("https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", BipNadarzynParser)])
+    crawler = Crawler([("https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", BipNadarzynListParser)])
     crawler.crawl(pd.DataFrame(columns=[Elements.model_fields.keys()]))

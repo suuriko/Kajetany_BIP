@@ -3,7 +3,7 @@ import logging
 import pandas as pd
 
 from src.crawler.crawler import Crawler
-from src.crawler.parser import BipNadarzynParser
+from src.crawler.parsers.bip_nadarzyn_list_parser import BipNadarzynListParser
 from src.mail_delivery_service import send_to_group
 from src.models.elements import Elements
 
@@ -23,7 +23,7 @@ def run():
     past_data = read_past_csv()
     crawler = Crawler(
         [
-            ("https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", BipNadarzynParser),
+            ("https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", BipNadarzynListParser),
             # ("https://bip.nadarzyn.pl/975,procedury-planistyczne-w-toku", AnotherParser()),
         ]
     )
