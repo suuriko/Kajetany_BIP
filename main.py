@@ -5,7 +5,7 @@ import pandas as pd
 from src.crawler.old.bip_nadarzyn_list_parser import BipNadarzynListParser
 from src.crawler.old.crawler import Crawler
 from src.mail_delivery_service import send_to_group
-from src.models.elements import Elements
+from src.models.elements import ContentItem
 
 RESULTS_FILE = "items.csv"
 
@@ -16,7 +16,7 @@ def read_past_csv():
     try:
         return pd.read_csv(RESULTS_FILE)
     except FileNotFoundError:
-        return pd.DataFrame(columns=[Elements.model_fields.keys()])
+        return pd.DataFrame(columns=[ContentItem.model_fields.keys()])
 
 
 def run():

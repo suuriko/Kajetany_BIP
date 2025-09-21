@@ -1,78 +1,56 @@
 import abc
-import io
 import logging
 from typing import Generator, Optional
 
-from pypdf import PdfReader
-from selectolax.lexbor import LexborNode
+from selectolax.lexbor import LexborHTMLParser, LexborNode
 
-from src.crawler.http_client import HttpClient, HttpResponse
-from src.models.elements import Elements
+from src.models.elements import ContentItem, RedirectItem
 
 
 class BaseParser(abc.ABC):
-    """Abstract base class for parsing content from BIP websites.
+    """Abstract base class for parsing content from websites.
 
-    This class provides common functionality for parsing HTML content and PDF files,
+    This class provides common functionality for parsing HTML content,
     while allowing specific implementations to define their own parsing logic.
     """
 
-    def __init__(self, http_client: HttpClient, base_url: str) -> None:
-        """Initialize the parser with HTTP client and base URL.
+    def __init__(self) -> None:
+        """Initialize the parser with base URL.
 
         Args:
-            http_client: HTTP client for making requests
             base_url: Base URL for resolving relative links
         """
         self.logger = logging.getLogger("parser")
-        self.http_client = http_client
-        self.base_url = base_url
-        self.i = 0
-
-    def fetch(self, url: str) -> HttpResponse:
-        """Fetch the content of the given URL. Optionally transform it before returning.
-
-        Args:
-            url: URL to fetch
-
-        Returns:
-            HTTP response object
-        """
-        return self.http_client.fetch(url)
 
     @abc.abstractmethod
-    def parse_list(self, html: str) -> Generator[Optional[Elements], None, None]:
-        """Parse HTML content and yield Elements objects.
+    def can_parse(self, url: str, dom: LexborHTMLParser) -> bool:
+        """Determine if this parser can handle the given URL and DOM.
 
         Args:
-            html: HTML content to parse
-
-        Yields:
-            Elements objects found in the content, or None if no matches
+            url: The URL to check
+            dom: The parsed HTML DOM
+        Returns:
+            True if this parser can handle the URL, False otherwise
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def parse_item(self, item: LexborNode) -> Optional[Elements]:
-        """Parse a single HTML item node into an Elements object.
+    def parse(self, url: str, dom: LexborHTMLParser) -> Generator[Optional[ContentItem | RedirectItem]]:
+        """Parse the given DOM and return an Elements or Redirect object.
 
         Args:
-            item: HTML node to parse
-
+            dom: The parsed HTML DOM
         Returns:
-            Elements object or None if parsing fails
+            An Elements object if parsing is successful, None otherwise
         """
         raise NotImplementedError
 
-    def parse_pdf(self, url: str) -> str:
-        """Extract text content from a PDF at the given URL.
+    def _get_node_text_or_default(self, node: Optional[LexborNode], default: Optional[str] = None) -> Optional[str]:
+        """Helper to get text from a node or return default."""
+        return node.text(strip=True) if node else default
 
-        Args:
-            url: URL of the PDF to parse
-
-        Returns:
-            Extracted text content from all pages
-        """
-        response = self.http_client.fetch(url)
-        reader = PdfReader(io.BytesIO(response.content))
-        return "".join([p.extract_text() or "" for p in reader.pages])
+    def _get_node_text_content_or_default(
+        self, node: Optional[LexborNode], default: Optional[str] = None
+    ) -> Optional[str]:
+        """Helper to get text content from a node or return default."""
+        return node.text_content.strip() if node and node.text_content else default

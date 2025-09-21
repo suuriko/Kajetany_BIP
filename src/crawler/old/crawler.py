@@ -7,7 +7,7 @@ import pandas as pd
 from src.crawler.http_client import HttpClient
 from src.crawler.old.base_parser import BaseParser
 from src.crawler.old.bip_nadarzyn_list_parser import BipNadarzynListParser
-from src.models.elements import Elements
+from src.models.elements import ContentItem
 
 
 class Crawler:
@@ -57,12 +57,11 @@ class Crawler:
 
                 except Exception as e:
                     self.logger.error(f"Failed to crawl {list_url}: {e}")
-                    raise e
                     continue
 
-        return pd.DataFrame(new_items) if new_items else pd.DataFrame(columns=list(Elements.model_fields.keys()))
+        return pd.DataFrame(new_items) if new_items else pd.DataFrame(columns=list(ContentItem.model_fields.keys()))
 
-    def _is_duplicate(self, item: Elements, past_data: pd.DataFrame) -> bool:
+    def _is_duplicate(self, item: ContentItem, past_data: pd.DataFrame) -> bool:
         """Check if item already exists in past data."""
         return not past_data.empty and item.url in past_data["url"].values
 
@@ -70,4 +69,4 @@ class Crawler:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s:%(name)s]  %(message)s")
     crawler = Crawler([("https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", BipNadarzynListParser)])
-    crawler.crawl(pd.DataFrame(columns=[Elements.model_fields.keys()]))
+    crawler.crawl(pd.DataFrame(columns=[ContentItem.model_fields.keys()]))

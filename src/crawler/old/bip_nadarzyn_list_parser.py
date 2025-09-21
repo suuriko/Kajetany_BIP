@@ -6,7 +6,7 @@ from selectolax.lexbor import LexborHTMLParser, LexborNode
 
 from src.crawler.datetime_extractor import extract_datetime
 from src.crawler.old.base_parser import BaseParser
-from src.models.elements import Elements
+from src.models.elements import ContentItem
 
 
 class BipNadarzynListParser(BaseParser):
@@ -17,7 +17,7 @@ class BipNadarzynListParser(BaseParser):
 
     SEARCH_PATTERN = re.compile(r"\bKajetan\w*\b", re.IGNORECASE)
 
-    def parse_list(self, html: str) -> Generator[Optional[Elements], None, None]:
+    def parse_list(self, html: str) -> Generator[Optional[ContentItem], None, None]:
         """Parse the main list page for relevant items."""
         dom = LexborHTMLParser(html)
         for item in dom.css("#PageContent div.obiekt"):
@@ -43,7 +43,7 @@ class BipNadarzynListParser(BaseParser):
                 return True
         return False
 
-    def parse_item(self, item: LexborNode) -> Optional[Elements]:
+    def parse_item(self, item: LexborNode) -> Optional[ContentItem]:
         """Parse a single item node into an Elements object."""
         title = self._get_node_text_or_default(item.css_first("h3")) or "Brak tytułu"
         published_at = extract_datetime(
@@ -64,7 +64,7 @@ class BipNadarzynListParser(BaseParser):
             full_url = urljoin(self.base_url, href)
             self.logger.info(f"Found link in list: \n{title} \n -> {link_text} \n  -> {full_url}")
 
-            return Elements(
+            return ContentItem(
                 main_title=title,
                 title=link_text,
                 url=full_url,

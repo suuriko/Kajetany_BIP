@@ -7,7 +7,7 @@ from pypdf import PdfReader
 from selectolax.lexbor import LexborNode
 
 from src.crawler.http_client import HttpClient, HttpResponse
-from src.models.elements import Elements
+from src.models.elements import ContentItem
 
 
 class BaseParser(abc.ABC):
@@ -41,7 +41,7 @@ class BaseParser(abc.ABC):
         return self.http_client.fetch(url)
 
     @abc.abstractmethod
-    def parse_list(self, html: str) -> Generator[Optional[Elements], None, None]:
+    def parse_list(self, html: str) -> Generator[Optional[ContentItem], None, None]:
         """Parse HTML content and yield Elements objects.
 
         Args:
@@ -53,7 +53,7 @@ class BaseParser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def parse_item(self, item: LexborNode) -> Optional[Elements]:
+    def parse_item(self, item: LexborNode) -> Optional[ContentItem]:
         """Parse a single HTML item node into an Elements object.
 
         Args:
