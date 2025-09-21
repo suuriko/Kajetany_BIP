@@ -6,7 +6,7 @@ from typing import Generator, Optional
 from urllib.parse import urljoin
 
 from pypdf import PdfReader
-from selectolax.parser import HTMLParser, Node
+from selectolax.lexbor import LexborHTMLParser, LexborNode
 
 from src.crawler.datetime_extractor import extract_datetime
 from src.crawler.http_client import HttpClient
@@ -45,7 +45,7 @@ class BaseParser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def parse_item(self, item: Node) -> Optional[Elements]:
+    def parse_item(self, item: LexborNode) -> Optional[Elements]:
         """Parse a single HTML item node into an Elements object.
 
         Args:
@@ -80,7 +80,7 @@ class BipNadarzynParser(BaseParser):
 
     def parse_list(self, html: str) -> Generator[Optional[Elements], None, None]:
         """Parse the main list page for relevant items."""
-        dom = HTMLParser(html)
+        dom = LexborHTMLParser(html)
         for item in dom.css("#PageContent div.obiekt"):
             # First, match directly in HTML text
             if self._text_matches_pattern(item.text()):
@@ -91,7 +91,7 @@ class BipNadarzynParser(BaseParser):
             if self._pdf_links_have_match(item):
                 yield self.parse_item(item)
 
-    def _pdf_links_have_match(self, item: Node) -> bool:
+    def _pdf_links_have_match(self, item: LexborNode) -> bool:
         """Return True if any PDF linked within the item contains the search pattern."""
         for a in item.css("a"):
             href = a.attributes.get("href")
@@ -104,7 +104,7 @@ class BipNadarzynParser(BaseParser):
                 return True
         return False
 
-    def parse_item(self, item: Node) -> Optional[Elements]:
+    def parse_item(self, item: LexborNode) -> Optional[Elements]:
         """Parse a single item node into an Elements object."""
         title = self._get_node_text_or_default(item.css_first("h3")) or "Brak tytułu"
         published_at = extract_datetime(
@@ -135,7 +135,7 @@ class BipNadarzynParser(BaseParser):
             )
         return None
 
-    def _get_node_text_or_default(self, node: Optional[Node], default: Optional[str] = None) -> Optional[str]:
+    def _get_node_text_or_default(self, node: Optional[LexborNode], default: Optional[str] = None) -> Optional[str]:
         """Helper to get text from a node or return default."""
         return node.text().strip() if node else default
 
