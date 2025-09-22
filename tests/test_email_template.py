@@ -15,7 +15,7 @@ def test_email_generation():
 
     # Create sample content items - kilka pozycji w jednej grupie
     items = [
-        # Nowy wpis (tylko published_at, bez last_modified_at)
+        # New entry (only published_at, without last_modified_at)
         ContentItem(
             url="https://bip.nadarzyn.pl/1053,rok-2025?tresc=18157#uchwala_120",
             main_title="Uchwały Rady Gminy Nadarzyn podjęte na XV Sesji",
@@ -26,9 +26,9 @@ def test_email_generation():
             ),
             created_at=datetime.date(2025, 8, 26),
             published_at=datetime.date(2025, 8, 26),
-            last_modified_at=None,  # Brak aktualizacji - nowy wpis
+            last_modified_at=None,  # No update - a new entry
         ),
-        # Aktualizacja (last_modified_at > created_at)
+        # Update (last_modified_at > created_at)
         ContentItem(
             url="https://bip.nadarzyn.pl/1053,rok-2025?tresc=18157#uchwala_121",
             main_title="Uchwały Rady Gminy Nadarzyn podjęte na XV Sesji",
@@ -41,7 +41,7 @@ def test_email_generation():
             published_at=datetime.date(2025, 8, 20),
             last_modified_at=datetime.date(2025, 8, 26),  # Zaktualizowane później
         ),
-        # Nowy wpis (tylko published_at, bez last_modified_at)
+        # New entry (only published_at, without last_modified_at)
         ContentItem(
             url="https://bip.nadarzyn.pl/1053,rok-2025?tresc=18157#uchwala_122",
             main_title="Uchwały Rady Gminy Nadarzyn podjęte na XV Sesji",
@@ -49,7 +49,7 @@ def test_email_generation():
             description=None,
             created_at=datetime.date(2025, 8, 26),
             published_at=datetime.date(2025, 8, 26),
-            last_modified_at=None,  # Brak aktualizacji - nowy wpis
+            last_modified_at=None,  # No update - a new entry
         ),
     ]
 
@@ -85,8 +85,8 @@ def test_email_generation():
         print(f"  • {title}: {count} item(s)")
 
     print("\n🏷️  Entry types:")
-    print(f"  • Nowe wpisy: {entry_types.get('nowy', 0)}")
-    print(f"  • Aktualizacje: {entry_types.get('aktualizacja', 0)}")
+    print(f"  • New entries: {entry_types.get('nowy', 0)}")
+    print(f"  • Updates: {entry_types.get('aktualizacja', 0)}")
 
     print("\n📄 First 200 characters of generated email:")
     print(email_content[:200] + "...")

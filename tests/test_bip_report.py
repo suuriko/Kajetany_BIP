@@ -137,7 +137,7 @@ def test_bip_report_generation():
     # Show basic statistics
     grouped_count = {}
     date_count = {}
-    entry_types = {"nowy": 0, "aktualizacja": 0}
+    entry_types = {"new": 0, "update": 0}
 
     for item in items:
         # Group by main_title
@@ -163,8 +163,8 @@ def test_bip_report_generation():
         print(f"  • {date_str}: {count} item(s)")
 
     print("\n🏷️  Entry types:")
-    print(f"  • Nowe wpisy: {entry_types.get('nowy', 0)}")
-    print(f"  • Aktualizacje: {entry_types.get('aktualizacja', 0)}")
+    print(f"  • Nowe wpisy: {entry_types.get('new', 0)}")
+    print(f"  • Aktualizacje: {entry_types.get('update', 0)}")
 
     print("\n🌐 Open in browser:")
     print(f"  file://{Path(output_path).absolute()}")
