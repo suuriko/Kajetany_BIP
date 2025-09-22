@@ -39,6 +39,16 @@
       "python": "${workspaceFolder}/venv/bin/python",
       "request": "launch",
       "type": "debugpy"
+    },
+    {
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "module": "src.mail_delivery_service",
+      "name": "[Mac] Debug Mail Delivery Service",
+      "python": "${workspaceFolder}/venv/bin/python",
+      "request": "launch",
+      "type": "debugpy"
     }
   ],
   "version": "0.2.0"

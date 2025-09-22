@@ -9,10 +9,14 @@ from src.crawler.http_client import HttpClient
 from src.crawler.new.base_parser import BaseParser
 from src.crawler.new.parser import (
     ArticleAttachmentParser,
+    ArticleBriefParser,
     ArticleParser,
+    FullArticleParser,
+    ListAttachmentParser,
     SearchPageConfiguratorParser,
     SearchPageResultsParser,
 )
+from src.mail_delivery_service import generate_email_content_html
 from src.models.elements import ContentItem, RedirectItem
 
 
@@ -63,7 +67,7 @@ class Crawler:
                     merged_item = item.merge_with_redirect(item_to_crawl)
 
                     print("New item found:\n", merged_item)
-                    new_items.append(merged_item)
+                    new_items.append(merged_item.model_dump())
 
                 time.sleep(1.5)  # Be respectful to the server
 
@@ -77,32 +81,47 @@ class Crawler:
         try:
             self.logger.info(f"Fetching URL: {url}")
             response = client.fetch(url)
+            resolved_url = str(response.url)
 
             dom = LexborHTMLParser(response.text)
 
             # Determine the appropriate parser for the content
             parser = None
             for p in self.parsers:
-                if p.can_parse(url, dom):
+                if p.can_parse(resolved_url, dom):
                     parser = p
                     break
 
             if parser is None:
-                self.logger.warning(f"No suitable parser found for {url}")
+                self.logger.warning(f"No suitable parser found for {resolved_url}")
                 return None
 
             self.logger.info(f"Using parser: {parser.__class__.__name__}")
-            yield from parser.parse(url, dom)
+            yield from parser.parse(resolved_url, dom)
 
         except Exception as e:
-            self.logger.error(f"Failed to crawl {url}: {e}")
+            self.logger.error(f"Failed to crawl {resolved_url}: {e}")
             raise e
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s:%(name)s]  %(message)s")
     crawler = Crawler(
-        base_url="https://bip.nadarzyn.pl/redir,szukaj?szukaj_wyniki=1&szukaj=kajetany&szukaj_tryb=0&szukaj_aktualnosci_data_od=&szukaj_aktualnosci_data_do=&szukaj_kalendarium_data_od=&szukaj_kalendarium_data_do=&szukaj_data_wybor=7d&szukaj_data_od=2024-03-01&szukaj_data_do=2024-03-31&szukaj_limit=100",
-        parsers=[SearchPageConfiguratorParser(), SearchPageResultsParser(), ArticleParser(), ArticleAttachmentParser()],
+        # base_url="https://bip.nadarzyn.pl/redir,szukaj?szukaj_wyniki=1&szukaj=kajetany&szukaj_tryb=0&szukaj_aktualnosci_data_od=&szukaj_aktualnosci_data_do=&szukaj_kalendarium_data_od=&szukaj_kalendarium_data_do=&szukaj_data_wybor=1m&szukaj_data_od=2024-03-01&szukaj_data_do=2024-03-31&szukaj_limit=100",
+        base_url="https://bip.nadarzyn.pl/1071,rok-2025?nobreakup#akapit_7470",
+        parsers=[
+            SearchPageConfiguratorParser(),
+            SearchPageResultsParser(),
+            ArticleBriefParser(),
+            ArticleParser(),
+            ArticleAttachmentParser(),
+            ListAttachmentParser(),
+            FullArticleParser(),
+        ],
     )
-    crawler.crawl(pd.DataFrame(columns=[ContentItem.model_fields.keys()]))
+    new_data = crawler.crawl(pd.DataFrame(columns=[ContentItem.model_fields.keys()]))
+
+    html = generate_email_content_html(new_data)
+    if html:
+        with open("email_content.html", "w", encoding="utf-8") as f:
+            f.write(html)

@@ -5,8 +5,10 @@ from email.message import EmailMessage
 
 import pandas as pd
 
-SMTP_USER = os.getenv("SMTP_USER")  # Twój Gmail
-SMTP_PASS = os.getenv("SMTP_PASS")  # App Password (16 znaków)
+from src.models.elements import ContentItem
+
+SMTP_USER = os.getenv("SMTP_USER", "")  # Twój Gmail
+SMTP_PASS = os.getenv("SMTP_PASS", "")  # App Password (16 znaków)
 TO_GROUP = os.getenv("TO_GROUP", "suuriko@gmail.com")
 
 
@@ -14,7 +16,11 @@ def generate_email_content_html(new_entries: pd.DataFrame):
     if new_entries.empty:
         return None
 
-    grouped = new_entries.groupby("main_title")["url"].apply(list).reset_index()
+    grouped = (
+        new_entries.groupby("main_title")
+        .agg({"url": list, "description": lambda x: x.dropna().iloc[0] if not x.dropna().empty else None})
+        .reset_index()
+    )
 
     email_html = """
 <html><body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f8f9fa; padding: 20px;">
@@ -30,8 +36,11 @@ def generate_email_content_html(new_entries: pd.DataFrame):
         for link in row["url"]:
             email_html += f"""
             <li style="margin-bottom: 5px;">
-                <a href="{link}" style="color: #007bff; text-decoration: none;">{link}</a>
-            </li>"""
+                <a href="{link}" style="color: #007bff; text-decoration: none;">{link}</a>"""
+            if row["description"] is not None:
+                email_html += f""" <blockquote style="margin: 0;background-color: #f4f5f6;padding: 8px;border-radius: 8px;">{row["description"].replace("Kajetany", "<mark>Kajetany</mark>")}</blockquote>"""
+            email_html += "</li>"
+
         email_html += """
         </ul>"""
 
@@ -60,3 +69,50 @@ def send_to_group(data: pd.DataFrame):
         s.send_message(msg)
 
     print(f"Email sent to {TO_GROUP} with {len(data)} new entries.")
+
+
+if __name__ == "__main__":
+    items = [
+        ContentItem(
+            url="https://example.com/1",
+            main_title="Ogłoszenie 1",
+            title="Ogłoszenie 1",
+            description="Opis 1",
+            created_at=None,
+            published_at=None,
+            last_modified_at=None,
+        ),
+        ContentItem(
+            url="https://example.com/2",
+            main_title="Ogłoszenie 2",
+            title="Ogłoszenie 2",
+            description=None,
+            created_at=None,
+            published_at=None,
+            last_modified_at=None,
+        ),
+        ContentItem(
+            url="https://example.com/3",
+            main_title="Ogłoszenie 3",
+            title="Plik 1",
+            description="Opis 2",
+            created_at=None,
+            published_at=None,
+            last_modified_at=None,
+        ),
+        ContentItem(
+            url="https://example.com/4",
+            main_title="Ogłoszenie 3",
+            title="Plik 2",
+            description="Opis 2",
+            created_at=None,
+            published_at=None,
+            last_modified_at=None,
+        ),
+    ]
+    # Example usage
+    df = pd.DataFrame(item.model_dump() for item in items)
+    html = generate_email_content_html(df)
+    if html:
+        with open("email_content.html", "w", encoding="utf-8") as f:
+            f.write(html)

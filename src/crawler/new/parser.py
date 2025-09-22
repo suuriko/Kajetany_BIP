@@ -1,5 +1,5 @@
 from typing import Generator, Optional
-from urllib.parse import urlencode, urlparse, urlunparse
+from urllib.parse import urlencode, urljoin, urlparse, urlunparse
 
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 
@@ -133,6 +133,101 @@ class ArticleAttachmentParser(BaseParser):
             main_title=article_title,
             title=attachment_name,
             description=None,
+            url=url,
+            published_at=published_at,
+            created_at=created_at,
+            last_modified_at=last_modified_at,
+        )
+
+
+class ListAttachmentParser(BaseParser):
+    def can_parse(self, url: str, dom: LexborHTMLParser) -> bool:
+        anchor = urlparse(url).fragment
+        return "plik_" in anchor and dom.css_first(f".obiekt_akapit #{anchor}") is None
+
+    def parse(self, url: str, dom: LexborHTMLParser) -> Generator[Optional[ContentItem], None, None]:
+        anchor = urlparse(url).fragment
+
+        container_node = dom.css_first(f".obiekt_pliki:has(#{anchor})")
+        article_title = self._get_node_text_or_default(container_node.css_first("h3")) or "Brak tytułu"
+
+        attachment_node = container_node.css_first(f"#{anchor}")
+        attachment_name = self._get_node_text_or_default(attachment_node.css_first(".pliki_link")) or "Brak nazwy"
+
+        published_at = extract_datetime(
+            self._get_node_text_or_default(container_node.css_first(".data_publikacji .system_metryka_wartosc"))
+        )
+        created_at = extract_datetime(
+            self._get_node_text_or_default(container_node.css_first(".autor_data .system_metryka_wartosc"))
+        )
+        last_modified_at = extract_datetime(
+            self._get_node_text_or_default(container_node.css_first(".data_mod .system_metryka_wartosc"))
+        )
+
+        yield ContentItem(
+            main_title=article_title,
+            title=attachment_name,
+            description=None,
+            url=url,
+            published_at=published_at,
+            created_at=created_at,
+            last_modified_at=last_modified_at,
+        )
+
+
+class ArticleBriefParser(BaseParser):
+    def can_parse(self, url: str, dom: LexborHTMLParser) -> bool:
+        anchor = urlparse(url).fragment
+        return "akapit_" in anchor and dom.css_first(f".obiekt_akapit#{anchor} .akapit_skrot") is not None
+
+    def parse(self, url: str, dom: LexborHTMLParser) -> Generator[Optional[RedirectItem], None, None]:
+        parsed_url = urlparse(url)
+        anchor = parsed_url.fragment
+        base_url = urlunparse((parsed_url.scheme, parsed_url.netloc, "", "", "", ""))  # URL base
+        article_node = dom.css_first(f".obiekt_akapit#{anchor} .akapit_skrot")
+
+        more_link = article_node.css_first("a.wyswietl_wiecej_link")
+        more_link_url = more_link.attributes.get("href") if more_link else None
+        if not more_link_url:
+            self.logger.warning(f"Item missing 'read more' link, skipping: {url}")
+            return None
+
+        title = self._get_node_text_or_default(article_node.css_first("h3")) or "Brak tytułu"
+
+        yield RedirectItem(
+            main_title=title,
+            title=title,
+            description=None,
+            url=urljoin(base_url, more_link_url),
+            published_at=None,
+            created_at=None,
+            last_modified_at=None,
+        )
+
+
+class FullArticleParser(BaseParser):
+    def can_parse(self, url: str, dom: LexborHTMLParser) -> bool:
+        return True
+
+    def parse(self, url: str, dom: LexborHTMLParser) -> Generator[Optional[ContentItem], None, None]:
+        article_node = dom.css_first(".obiekt_akapit")
+        title = self._get_node_text_or_default(article_node.css_first("h3")) or "Brak tytułu"
+        description = None
+
+        published_at = extract_datetime(
+            self._get_node_text_or_default(article_node.css_first(".data_publikacji .system_metryka_wartosc"))
+        )
+        created_at = extract_datetime(
+            self._get_node_text_or_default(article_node.css_first(".autor_data .system_metryka_wartosc"))
+        )
+        last_modified_at = extract_datetime(
+            self._get_node_text_or_default(article_node.css_first(".data_mod .system_metryka_wartosc"))
+        )
+
+        yield ContentItem(
+            main_title=title,
+            title=title,
+            description=description,
             url=url,
             published_at=published_at,
             created_at=created_at,
