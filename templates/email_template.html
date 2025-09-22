@@ -58,8 +58,8 @@
                             </table>
 
                             <!-- Content sections -->
-                            {% if items_grouped %}
-                            {% for main_title, group_items in items_grouped.items() %}
+                            {%- if items_grouped %}
+                            {%- for main_title, group_items in items_grouped.items() %}
                             <!-- Section card -->
                             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 24px; background-color: #f8fafb; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; overflow: hidden;">
                                 <!-- Section header -->
@@ -69,7 +69,7 @@
                                             {{ main_title }}
                                         </h3>
                                         <p style="margin: 4px 0 0 0; font-size: 13px; color: #667eea; font-weight: 500;">
-                                            {{ group_items | length }} {% if group_items | length == 1 %}pozycja{% else %}pozycje{% endif %}
+                                            {{ group_items | length }} {% if group_items | length == 1 %}pozycja{%- else %}pozycje{% endif %}
                                         </p>
                                     </td>
                                 </tr>
@@ -77,7 +77,7 @@
                                 <!-- Items list -->
                                 <tr>
                                     <td style="padding: 20px 20px 4px 20px;">
-                                        {% for item in group_items %}
+                                        {%- for item in group_items %}
                                         <!-- Item card -->
                                         <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb;">
                                             <tr>
@@ -102,15 +102,15 @@
                                                                 <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                                                     <tr>
                                                                         <td style="vertical-align: middle;">
-                                                                            {% if item.published_at or item.created_at or item.last_modified_at %}
+                                                                            {%- if item.published_at or item.created_at or item.last_modified_at %}
                                                                             <p style="margin: 0; font-size: 12px; color: #9ca3af;">
-                                                                                {% if item.last_modified_at %}
+                                                                                {%- if item.last_modified_at %}
                                                                                 Dodano: {{ (item.published_at or item.created_at) | date_format }}<span style="margin: 0 8px;">•</span>Aktualizacja: {{ item.last_modified_at | date_format }}
-                                                                                {% else %}
+                                                                                {%- else %}
                                                                                 Dodano: {{ (item.published_at or item.created_at) | date_format }}
-                                                                                {% endif %}
+                                                                                {%- endif %}
                                                                             </p>
-                                                                            {% endif %}
+                                                                            {%- endif %}
                                                                         </td>
                                                                         <td style="text-align: right; vertical-align: middle;">
                                                                             <a href="{{ item.url }}" style="display: inline-block; background-color: #667eea; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
@@ -125,12 +125,12 @@
                                                 </td>
                                             </tr>
                                         </table>
-                                        {% endfor %}
+                                        {%- endfor %}
                                     </td>
                                 </tr>
                             </table>
-                            {% endfor %}
-                            {% endif %}
+                            {%- endfor %}
+                            {%- endif %}
 
                             <!-- Closing -->
                             <table cellpadding="0" cellspacing="0" border="0" width="100%">
