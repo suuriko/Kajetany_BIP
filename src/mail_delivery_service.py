@@ -7,9 +7,9 @@ import pandas as pd
 
 from src.models.elements import ContentItem
 
-SMTP_USER = os.getenv("SMTP_USER", "")  # Twój Gmail
-SMTP_PASS = os.getenv("SMTP_PASS", "")  # App Password (16 znaków)
-TO_GROUP = os.getenv("TO_GROUP", "suuriko@gmail.com")
+SMTP_USER = os.getenv("SMTP_USER")  # Twój Gmail
+SMTP_PASS = os.getenv("SMTP_PASS")  # App Password (16 znaków)
+TO_GROUP = os.getenv("TO_GROUP")  # Adres e-mail grupy docelowej
 
 
 def generate_email_content_html(new_entries: pd.DataFrame):
@@ -50,6 +50,9 @@ def generate_email_content_html(new_entries: pd.DataFrame):
 
 
 def send_to_group(data: pd.DataFrame):
+    if not SMTP_USER or not SMTP_PASS or not TO_GROUP:
+        raise RuntimeError("SMTP_USER, SMTP_PASS, and TO_GROUP environment variables must be set and non-empty.")
+
     email_content = generate_email_content_html(data)
 
     msg = EmailMessage()

@@ -27,7 +27,7 @@ class CSSSelectors:
 
 
 class SearchPageConfiguratorParser(BaseParser):
-    def can_parse(self, url: str, html_content: str) -> bool:
+    def can_parse(self, url: str, dom: LexborHTMLParser) -> bool:
         return "/redir,szukaj" in url and "_session_antiCSRF" not in url
 
     def parse(self, url: str, dom: LexborHTMLParser) -> Generator[Optional[RedirectItem], None, None]:

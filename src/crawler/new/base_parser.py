@@ -17,11 +17,6 @@ class BaseParser(abc.ABC):
     """
 
     def __init__(self) -> None:
-        """Initialize the parser with base URL.
-
-        Args:
-            base_url: Base URL for resolving relative links
-        """
         self.logger = logging.getLogger("parser")
 
     @abc.abstractmethod
@@ -37,13 +32,15 @@ class BaseParser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def parse(self, url: str, dom: LexborHTMLParser) -> Generator[Optional[ContentItem | RedirectItem]]:
-        """Parse the given DOM and return an Elements or Redirect object.
+    def parse(
+        self, url: str, dom: LexborHTMLParser
+    ) -> Generator[Optional[ContentItem | RedirectItem | None], None, None]:
+        """Parse the given DOM and return an ContentItem or RedirectItem object.
 
         Args:
             dom: The parsed HTML DOM
         Returns:
-            An Elements object if parsing is successful, None otherwise
+            An ContentItem or RedirectItem object if parsing is successful, None otherwise
         """
         raise NotImplementedError
 

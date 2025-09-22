@@ -78,6 +78,7 @@ class Crawler:
         return not past_data.empty and item.url in past_data["url"].values
 
     def crawl_url(self, url: str, client: HttpClient) -> Generator[ContentItem | RedirectItem | None]:
+        resolved_url = url
         try:
             self.logger.info(f"Fetching URL: {url}")
             response = client.fetch(url)
@@ -101,7 +102,7 @@ class Crawler:
 
         except Exception as e:
             self.logger.error(f"Failed to crawl {resolved_url}: {e}")
-            raise e
+            raise
 
 
 if __name__ == "__main__":

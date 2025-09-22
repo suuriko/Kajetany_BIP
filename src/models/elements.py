@@ -18,10 +18,10 @@ class ContentItem(BaseModel):
     url: str
     main_title: str
     title: str
-    description: str | None
-    published_at: datetime.date | None
-    created_at: datetime.date | None
-    last_modified_at: datetime.date | None
+    description: str | None = None
+    published_at: datetime.date | None = None
+    created_at: datetime.date | None = None
+    last_modified_at: datetime.date | None = None
 
     def merge_with_redirect(self, redirect: RedirectItem) -> "ContentItem":
         """Merge current ContentItem with data from a RedirectItem, preferring existing values."""
