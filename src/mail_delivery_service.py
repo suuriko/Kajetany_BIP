@@ -2,9 +2,11 @@ import os
 import smtplib
 import ssl
 from email.message import EmailMessage
+from typing import Optional
 
 import pandas as pd
 
+from src.html_generator import HTMLGenerator
 from src.models.elements import ContentItem
 
 SMTP_USER = os.getenv("SMTP_USER")  # Twój Gmail
@@ -12,41 +14,41 @@ SMTP_PASS = os.getenv("SMTP_PASS")  # App Password (16 znaków)
 TO_GROUP = os.getenv("TO_GROUP")  # Adres e-mail grupy docelowej
 
 
-def generate_email_content_html(new_entries: pd.DataFrame):
+def generate_email_content_html(new_entries: pd.DataFrame) -> Optional[str]:
+    """
+    Generate HTML email content from pandas DataFrame using Jinja2 template.
+
+    Args:
+        new_entries: DataFrame with BIP content items
+
+    Returns:
+        HTML email content as string, or None if no entries
+    """
     if new_entries.empty:
         return None
 
-    grouped = new_entries.groupby("main_title")
+    # Convert DataFrame to ContentItem objects
+    items = []
+    for _, row in new_entries.iterrows():
+        try:
+            # Convert row to dict and handle NaN values
+            item_data = row.to_dict()
+            for key, value in item_data.items():
+                if pd.isna(value):
+                    item_data[key] = None
 
-    email_html = """
-<html><body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f8f9fa; padding: 20px;">
-<div style="max-width: 650px; margin: auto; background-color: #ffffff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-    <h2 style="color: #2c3e50; text-align: center;"> Nowe wpisy na stronie BIP Nadarzyn</h2>
-    <p>Drodzy Mieszkańcy Kajetan,</p>
-    <p>Na stronie <b>BIP Nadarzyn</b> pojawiły się nowe wpisy dotyczące Kajetan:</p>"""
+            item = ContentItem(**item_data)
+            items.append(item)
+        except Exception as e:
+            print(f"Warning: Could not create ContentItem from row: {e}")
+            continue
 
-    for main_title, group in grouped:
-        email_html += f"""
-        <h4 style="margin-bottom: 15px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">{main_title}</h4>
-        <ul style="margin: 5px 0 0 20px; padding: 0;">"""
+    if not items:
+        return None
 
-        for _, row in group.iterrows():
-            email_html += f"""
-            <li style="margin-bottom: 5px;">
-                <a href="{row["url"]}" style="color: #007bff; text-decoration: none;">{row["url"]}</a>
-            </li>"""
-
-        email_html += """
-        </ul>"""
-
-    email_html += """
-    <p style="margin-top: 25px;">Zachęcamy do zapoznania się ze szczegółami.</p>
-    <p style="color: #555;">Pozdrawiamy,<br><b>Bot Kajetany </b></p>
-    <hr style="border: none; border-top: 1px solid #ddd; margin-top: 20px;">
-    <p style="font-size: 12px; color: #888; text-align: center;">Wiadomość wygenerowana automatycznie. Prosimy na nią nie odpowiadać.</p>
-</div>
-</body></html>"""
-    return email_html
+    # Generate email using HTMLGenerator
+    generator = HTMLGenerator()
+    return generator.generate_email_content(items)
 
 
 def send_to_group(data: pd.DataFrame):
@@ -56,7 +58,7 @@ def send_to_group(data: pd.DataFrame):
     email_content = generate_email_content_html(data)
 
     msg = EmailMessage()
-    msg["Subject"] = "[BIP Bot] Nowe wpisy dla Kajetan w BIP Nadarzyn"
+    msg["Subject"] = "[BIP Bot] Nowe wpisy i aktualizacje dla Kajetan w BIP Nadarzyn"
     msg["From"] = SMTP_USER
     msg["To"] = TO_GROUP
     msg.set_content(email_content, subtype="html")

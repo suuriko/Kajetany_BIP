@@ -12,7 +12,8 @@ dependencies = [
     "selectolax",
     "pypdf",
     "pydantic",
-    "pandas"
+    "pandas",
+    "jinja2"
 ]
 
 [project.optional-dependencies]
