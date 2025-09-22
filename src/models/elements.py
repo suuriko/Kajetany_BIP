@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 
 from pydantic import BaseModel
@@ -23,7 +25,7 @@ class ContentItem(BaseModel):
     created_at: datetime.date | None = None
     last_modified_at: datetime.date | None = None
 
-    def merge_with_redirect(self, redirect: RedirectItem) -> "ContentItem":
+    def merge_with_redirect(self, redirect: RedirectItem) -> ContentItem:
         """Merge current ContentItem with data from a RedirectItem, preferring existing values."""
         return ContentItem(
             url=self.url,

@@ -5,9 +5,13 @@ from email.message import EmailMessage
 from typing import Optional
 
 import pandas as pd
+from dotenv import load_dotenv
 
 from src.html_generator import HTMLGenerator
 from src.models.elements import ContentItem
+
+# Load environment variables from .env file
+load_dotenv()
 
 SMTP_USER = os.getenv("SMTP_USER")  # Twój Gmail
 SMTP_PASS = os.getenv("SMTP_PASS")  # App Password (16 znaków)

@@ -229,12 +229,18 @@ class HTMLGenerator:
                 else:
                     item_data[date_field] = None
 
+            # Handle string fields - convert NaN to None
+            for string_field in ["description"]:
+                if string_field in item_data and pd.isna(item_data[string_field]):
+                    item_data[string_field] = None
+
             # Create ContentItem, handling missing fields gracefully
             try:
                 item = ContentItem(**item_data)
                 items.append(item)
             except Exception as e:
                 print(f"Warning: Could not create ContentItem from row: {e}")
+                print(f"Row data: {item_data}")
                 continue
 
         return self.generate_report(
