@@ -5,33 +5,37 @@ from email.message import EmailMessage
 
 import pandas as pd
 
+from src.models.elements import ContentItem
+
 SMTP_USER = os.getenv("SMTP_USER")  # Twój Gmail
 SMTP_PASS = os.getenv("SMTP_PASS")  # App Password (16 znaków)
-TO_GROUP = os.getenv("TO_GROUP", "suuriko@gmail.com")
+TO_GROUP = os.getenv("TO_GROUP")  # Adres e-mail grupy docelowej
 
 
 def generate_email_content_html(new_entries: pd.DataFrame):
     if new_entries.empty:
         return None
 
-    grouped = new_entries.groupby("main_title")["url"].apply(list).reset_index()
+    grouped = new_entries.groupby("main_title")
 
     email_html = """
 <html><body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f8f9fa; padding: 20px;">
 <div style="max-width: 650px; margin: auto; background-color: #ffffff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
     <h2 style="color: #2c3e50; text-align: center;"> Nowe wpisy na stronie BIP Nadarzyn</h2>
     <p>Drodzy Mieszkańcy Kajetan,</p>
-    <p>Na stronie <b>BIP Nadarzyn</b> pojawiły się nowe wpisy:</p>"""
+    <p>Na stronie <b>BIP Nadarzyn</b> pojawiły się nowe wpisy dotyczące Kajetan:</p>"""
 
-    for _, row in grouped.iterrows():
+    for main_title, group in grouped:
         email_html += f"""
-        <h4 style="margin-bottom: 15px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">{row["main_title"]}</h4>
+        <h4 style="margin-bottom: 15px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">{main_title}</h4>
         <ul style="margin: 5px 0 0 20px; padding: 0;">"""
-        for link in row["url"]:
+
+        for _, row in group.iterrows():
             email_html += f"""
             <li style="margin-bottom: 5px;">
-                <a href="{link}" style="color: #007bff; text-decoration: none;">{link}</a>
+                <a href="{row["url"]}" style="color: #007bff; text-decoration: none;">{row["url"]}</a>
             </li>"""
+
         email_html += """
         </ul>"""
 
@@ -46,6 +50,9 @@ def generate_email_content_html(new_entries: pd.DataFrame):
 
 
 def send_to_group(data: pd.DataFrame):
+    if not SMTP_USER or not SMTP_PASS or not TO_GROUP:
+        raise RuntimeError("SMTP_USER, SMTP_PASS, and TO_GROUP environment variables must be set and non-empty.")
+
     email_content = generate_email_content_html(data)
 
     msg = EmailMessage()
@@ -60,3 +67,50 @@ def send_to_group(data: pd.DataFrame):
         s.send_message(msg)
 
     print(f"Email sent to {TO_GROUP} with {len(data)} new entries.")
+
+
+if __name__ == "__main__":
+    items = [
+        ContentItem(
+            url="https://example.com/1",
+            main_title="Ogłoszenie 1",
+            title="Ogłoszenie 1",
+            description="Opis 1",
+            created_at=None,
+            published_at=None,
+            last_modified_at=None,
+        ),
+        ContentItem(
+            url="https://example.com/2",
+            main_title="Ogłoszenie 2",
+            title="Ogłoszenie 2",
+            description=None,
+            created_at=None,
+            published_at=None,
+            last_modified_at=None,
+        ),
+        ContentItem(
+            url="https://example.com/3",
+            main_title="Ogłoszenie 3",
+            title="Plik 1",
+            description="Opis 2",
+            created_at=None,
+            published_at=None,
+            last_modified_at=None,
+        ),
+        ContentItem(
+            url="https://example.com/4",
+            main_title="Ogłoszenie 3",
+            title="Plik 2",
+            description="Opis 2",
+            created_at=None,
+            published_at=None,
+            last_modified_at=None,
+        ),
+    ]
+    # Example usage
+    df = pd.DataFrame(item.model_dump() for item in items)
+    html = generate_email_content_html(df)
+    if html:
+        with open("email_content.html", "w", encoding="utf-8") as f:
+            f.write(html)

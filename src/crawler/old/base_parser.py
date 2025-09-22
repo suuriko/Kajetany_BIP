@@ -6,8 +6,8 @@ from typing import Generator, Optional
 from pypdf import PdfReader
 from selectolax.lexbor import LexborNode
 
-from src.crawler.http_client import HttpClient
-from src.models.elements import Elements
+from src.crawler.http_client import HttpClient, HttpResponse
+from src.models.elements import ContentItem
 
 
 class BaseParser(abc.ABC):
@@ -29,8 +29,19 @@ class BaseParser(abc.ABC):
         self.base_url = base_url
         self.i = 0
 
+    def fetch(self, url: str) -> HttpResponse:
+        """Fetch the content of the given URL. Optionally transform it before returning.
+
+        Args:
+            url: URL to fetch
+
+        Returns:
+            HTTP response object
+        """
+        return self.http_client.fetch(url)
+
     @abc.abstractmethod
-    def parse_list(self, html: str) -> Generator[Optional[Elements], None, None]:
+    def parse_list(self, html: str) -> Generator[Optional[ContentItem], None, None]:
         """Parse HTML content and yield Elements objects.
 
         Args:
@@ -42,7 +53,7 @@ class BaseParser(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def parse_item(self, item: LexborNode) -> Optional[Elements]:
+    def parse_item(self, item: LexborNode) -> Optional[ContentItem]:
         """Parse a single HTML item node into an Elements object.
 
         Args:

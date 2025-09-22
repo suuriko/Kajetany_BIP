@@ -5,9 +5,9 @@ from typing import Sequence
 import pandas as pd
 
 from src.crawler.http_client import HttpClient
-from src.crawler.parsers.base_parser import BaseParser
-from src.crawler.parsers.bip_nadarzyn_list_parser import BipNadarzynListParser
-from src.models.elements import Elements
+from src.crawler.old.base_parser import BaseParser
+from src.crawler.old.bip_nadarzyn_list_parser import BipNadarzynListParser
+from src.models.elements import ContentItem
 
 
 class Crawler:
@@ -40,8 +40,9 @@ class Crawler:
         with HttpClient() as client:
             for list_url, parser_class in self.urls_with_parsers:
                 try:
-                    response = client.fetch(list_url)
                     parser = parser_class(http_client=client, base_url=list_url)
+                    self.logger.info(f"Crawling {list_url} using {parser_class.__name__}")
+                    response = parser.fetch(list_url)
 
                     for item in parser.parse_list(response.text):
                         if item is None:
@@ -58,14 +59,14 @@ class Crawler:
                     self.logger.error(f"Failed to crawl {list_url}: {e}")
                     continue
 
-        return pd.DataFrame(new_items) if new_items else pd.DataFrame(columns=list(Elements.model_fields.keys()))
+        return pd.DataFrame(new_items) if new_items else pd.DataFrame(columns=list(ContentItem.model_fields.keys()))
 
-    def _is_duplicate(self, item: Elements, past_data: pd.DataFrame) -> bool:
+    def _is_duplicate(self, item: ContentItem, past_data: pd.DataFrame) -> bool:
         """Check if item already exists in past data."""
         return not past_data.empty and item.url in past_data["url"].values
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format="[%(levelname)s:%(name)s]  %(message)s")
     crawler = Crawler([("https://bip.nadarzyn.pl/73%2Ckomunikaty-i-ogloszenia", BipNadarzynListParser)])
-    crawler.crawl(pd.DataFrame(columns=[Elements.model_fields.keys()]))
+    crawler.crawl(pd.DataFrame(columns=[ContentItem.model_fields.keys()]))
