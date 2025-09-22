@@ -67,6 +67,7 @@ class BipNadarzynListParser(BaseParser):
             return ContentItem(
                 main_title=title,
                 title=link_text,
+                description=None,
                 url=full_url,
                 published_at=published_at,
                 created_at=created_at,

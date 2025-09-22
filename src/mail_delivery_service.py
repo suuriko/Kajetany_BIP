@@ -16,30 +16,25 @@ def generate_email_content_html(new_entries: pd.DataFrame):
     if new_entries.empty:
         return None
 
-    grouped = (
-        new_entries.groupby("main_title")
-        .agg({"url": list, "description": lambda x: x.dropna().iloc[0] if not x.dropna().empty else None})
-        .reset_index()
-    )
+    grouped = new_entries.groupby("main_title")
 
     email_html = """
 <html><body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; background-color: #f8f9fa; padding: 20px;">
 <div style="max-width: 650px; margin: auto; background-color: #ffffff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
     <h2 style="color: #2c3e50; text-align: center;"> Nowe wpisy na stronie BIP Nadarzyn</h2>
     <p>Drodzy Mieszkańcy Kajetan,</p>
-    <p>Na stronie <b>BIP Nadarzyn</b> pojawiły się nowe wpisy:</p>"""
+    <p>Na stronie <b>BIP Nadarzyn</b> pojawiły się nowe wpisy dotyczące Kajetan:</p>"""
 
-    for _, row in grouped.iterrows():
+    for main_title, group in grouped:
         email_html += f"""
-        <h4 style="margin-bottom: 15px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">{row["main_title"]}</h4>
+        <h4 style="margin-bottom: 15px; font-weight: bold; color: #2c3e50; margin-bottom: 5px;">{main_title}</h4>
         <ul style="margin: 5px 0 0 20px; padding: 0;">"""
-        for link in row["url"]:
+
+        for _, row in group.iterrows():
             email_html += f"""
             <li style="margin-bottom: 5px;">
-                <a href="{link}" style="color: #007bff; text-decoration: none;">{link}</a>"""
-            if row["description"] is not None:
-                email_html += f""" <blockquote style="margin: 0;background-color: #f4f5f6;padding: 8px;border-radius: 8px;">{row["description"].replace("Kajetany", "<mark>Kajetany</mark>")}</blockquote>"""
-            email_html += "</li>"
+                <a href="{row["url"]}" style="color: #007bff; text-decoration: none;">{row["url"]}</a>
+            </li>"""
 
         email_html += """
         </ul>"""

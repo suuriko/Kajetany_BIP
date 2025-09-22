@@ -107,8 +107,8 @@ class Crawler:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s:%(name)s]  %(message)s")
     crawler = Crawler(
-        # base_url="https://bip.nadarzyn.pl/redir,szukaj?szukaj_wyniki=1&szukaj=kajetany&szukaj_tryb=0&szukaj_aktualnosci_data_od=&szukaj_aktualnosci_data_do=&szukaj_kalendarium_data_od=&szukaj_kalendarium_data_do=&szukaj_data_wybor=1m&szukaj_data_od=2024-03-01&szukaj_data_do=2024-03-31&szukaj_limit=100",
-        base_url="https://bip.nadarzyn.pl/1071,rok-2025?nobreakup#akapit_7470",
+        base_url="https://bip.nadarzyn.pl/redir,szukaj?szukaj_wyniki=1&szukaj=kajetany&szukaj_tryb=0&szukaj_aktualnosci_data_od=&szukaj_aktualnosci_data_do=&szukaj_kalendarium_data_od=&szukaj_kalendarium_data_do=&szukaj_data_wybor=1m&szukaj_data_od=&szukaj_data_do=&szukaj_limit=100",
+        # base_url="https://bip.nadarzyn.pl/1071,rok-2025?nobreakup#akapit_7470",
         parsers=[
             SearchPageConfiguratorParser(),
             SearchPageResultsParser(),

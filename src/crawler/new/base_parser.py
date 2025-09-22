@@ -1,6 +1,8 @@
 import abc
 import logging
+from datetime import datetime
 from typing import Generator, Optional
+from urllib.parse import urlparse
 
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 
@@ -48,6 +50,47 @@ class BaseParser(abc.ABC):
     def _get_node_text_or_default(self, node: Optional[LexborNode], default: Optional[str] = None) -> Optional[str]:
         """Helper to get text from a node or return default."""
         return node.text(strip=True) if node else default
+
+    def _safe_get_node(self, parent_node: Optional[LexborNode], selector: str) -> Optional[LexborNode]:
+        """Safely get a child node using CSS selector."""
+        return parent_node.css_first(selector) if parent_node else None
+
+    def _extract_title(self, node: Optional[LexborNode], default: str = "Brak tytułu") -> str:
+        """Extract title from h3 element."""
+        title_node = self._safe_get_node(node, "h3")
+        return self._get_node_text_or_default(title_node) or default
+
+    def _get_anchor_from_url(self, url: str) -> str:
+        """Extract anchor from URL fragment."""
+        return urlparse(url).fragment
+
+    def _extract_metadata(
+        self, node: Optional[LexborNode]
+    ) -> tuple[Optional[datetime], Optional[datetime], Optional[datetime]]:
+        """Extract publication, creation and modification dates from article node.
+
+        Args:
+            node: The article node to extract metadata from
+
+        Returns:
+            Tuple of (published_at, created_at, last_modified_at)
+        """
+        if not node:
+            return None, None, None
+
+        from src.crawler.datetime_extractor import extract_datetime
+
+        published_at = extract_datetime(
+            self._get_node_text_or_default(self._safe_get_node(node, ".data_publikacji .system_metryka_wartosc"))
+        )
+        created_at = extract_datetime(
+            self._get_node_text_or_default(self._safe_get_node(node, ".autor_data .system_metryka_wartosc"))
+        )
+        last_modified_at = extract_datetime(
+            self._get_node_text_or_default(self._safe_get_node(node, ".data_mod .system_metryka_wartosc"))
+        )
+
+        return published_at, created_at, last_modified_at
 
     def _get_node_text_content_or_default(
         self, node: Optional[LexborNode], default: Optional[str] = None
