@@ -273,6 +273,7 @@ class HTMLGenerator:
             "items_grouped": items_grouped,
             "total_count": len(items),
             "subject": "[BIP Bot] Nowe wpisy i aktualizacje dla Kajetan w BIP Nadarzyn",
+            "generation_time": datetime.datetime.now(),
         }
 
         # Add custom context if provided

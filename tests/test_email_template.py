@@ -13,66 +13,43 @@ from src.models.elements import ContentItem
 def test_email_generation():
     """Test email template generation with sample data."""
 
-    # Create sample content items - mix of new entries and updates
+    # Create sample content items - kilka pozycji w jednej grupie
     items = [
-        # Nowy wpis (created_at = last_modified_at)
+        # Nowy wpis (tylko published_at, bez last_modified_at)
         ContentItem(
-            url="https://bip.nadarzyn.pl/34,organizacje?nobreakup#akapit_562",
-            main_title="Lista organizacji pozarządowych",
-            title='Stowarzyszenie na Rzecz Dzieci i Osób Niepełnosprawnych „SZLAKIEM TĘCZY"',
+            url="https://bip.nadarzyn.pl/1053,rok-2025?tresc=18157#uchwala_120",
+            main_title="Uchwały Rady Gminy Nadarzyn podjęte na XV Sesji",
+            title="Uchwała Nr XV/120/2025 w sprawie wyrażenia zgody na przekształcenie zakładu budżetowego",
             description=(
-                '1. Stowarzyszenie na Rzecz Dzieci i Osób Niepełnosprawnych „SZLAKIEM TĘCZY" '
-                "Kajetany, ul. Karola Łoniewskiego 11, 05-830 Nadarzyn tel. 793 003 898"
+                "Uchwała dotyczy przekształcenia Zakładu Budżetowego Gospodarki Komunalnej i Mieszkaniowej "
+                "w Nadarzynie w spółkę z ograniczoną odpowiedzialnością."
             ),
             created_at=datetime.date(2025, 8, 26),
             published_at=datetime.date(2025, 8, 26),
-            last_modified_at=datetime.date(2025, 8, 26),
+            last_modified_at=None,  # Brak aktualizacji - nowy wpis
         ),
         # Aktualizacja (last_modified_at > created_at)
         ContentItem(
-            url="https://bip.nadarzyn.pl/73,komunikaty-i-ogloszenia?nobreakup#plik_21282",
-            main_title="Obwieszczenie Wójta Gminy Nadarzyn z dnia 26.08.2025",
-            title="Obwieszczenie Wójta Gminy Nadarzyn",
+            url="https://bip.nadarzyn.pl/1053,rok-2025?tresc=18157#uchwala_121",
+            main_title="Uchwały Rady Gminy Nadarzyn podjęte na XV Sesji",
+            title="Uchwała Nr XV/121/2025 w sprawie zmian w budżecie gminy na rok 2025",
             description=(
-                "Wójt Gminy Nadarzyn Nadarzyn dnia 26 08 2025 r ul Mszczonowska 24 05 830 Nadarzyn "
-                "ROŚ 6220 12 2025 DSZ 1 OBWIESZCZENIE Na podstawie art 10 I art 61 1"
+                "Uchwała wprowadza zmiany w budżecie gminy Nadarzyn na rok 2025 - zwiększenie "
+                "dochodów i wydatków o kwotę 250.000 zł na inwestycje infrastrukturalne."
             ),
             created_at=datetime.date(2025, 8, 20),
             published_at=datetime.date(2025, 8, 20),
             last_modified_at=datetime.date(2025, 8, 26),  # Zaktualizowane później
         ),
-        # Nowy wpis bez description
+        # Nowy wpis (tylko published_at, bez last_modified_at)
         ContentItem(
-            url="https://bip.nadarzyn.pl/1071,rok-2025?tresc=18160",
-            main_title="Protokół z XIII Sesji Rady Gminy Nadarzyn",
-            title="Protokół z XIII Sesji",
+            url="https://bip.nadarzyn.pl/1053,rok-2025?tresc=18157#uchwala_122",
+            main_title="Uchwały Rady Gminy Nadarzyn podjęte na XV Sesji",
+            title="Uchwała Nr XV/122/2025 w sprawie nadania nazwy ulicy",
             description=None,
             created_at=datetime.date(2025, 8, 26),
             published_at=datetime.date(2025, 8, 26),
-            last_modified_at=datetime.date(2025, 8, 26),
-        ),
-        # Dodajmy więcej różnorodnych wpisów
-        ContentItem(
-            url="https://bip.nadarzyn.pl/1053,rok-2025?tresc=18157#akapit_7469",
-            main_title="Uchwały Rady Gminy Nadarzyn podjęte na XV Sesji",
-            title="Uchwała Nr XV.293.2025",
-            description=(
-                "Wykaz uchwał z XV sesji z dnia 27 sierpnia 2025 r. Uchwała Nr XV.293.2025 "
-                "w sprawie szczegółowych warunków i trybu przyznawania nagród za osiągnięcia "
-                "w dziedzinie twórczości artystycznej"
-            ),
-            created_at=datetime.date(2025, 8, 27),
-            published_at=datetime.date(2025, 8, 27),
-            last_modified_at=datetime.date(2025, 8, 28),  # Aktualizacja
-        ),
-        ContentItem(
-            url="https://bip.nadarzyn.pl/88,zawiadomienia-o-zwolaniu-sesji?tresc=18194",
-            main_title="Zawiadomienie o zwołaniu Sesji Rady Gminy Nadarzyn",
-            title="Zawiadomienie o XVI Sesji",
-            description="Załącznik nr 3 do Uchwały Nr Rady Gminy Nadarzyn z dnia Zmiana Tabeli nr 3",
-            created_at=datetime.date(2025, 9, 1),
-            published_at=datetime.date(2025, 9, 1),
-            last_modified_at=datetime.date(2025, 9, 1),  # Nowy
+            last_modified_at=None,  # Brak aktualizacji - nowy wpis
         ),
     ]
 
@@ -88,12 +65,12 @@ def test_email_generation():
         f.write(email_content)
 
     print("✅ Email content generated successfully!")
-    print(f"📧 Email contains {len(items)} items grouped by main_title")
-    print(f"💾 Saved to: {output_path.absolute()}")
+    print(f"📧 Email contains {len(items)} items in one group")
+    print(f"💾 Saved to: {output_path}")
 
-    # Show basic statistics
+    # Group statistics
     grouped_count = {}
-    entry_types = {"nowy": 0, "aktualizacja": 0}
+    entry_types = {}
 
     for item in items:
         main_title = item.main_title or "Różne"
