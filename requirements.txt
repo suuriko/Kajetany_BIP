@@ -4,3 +4,5 @@ pypdf
 pydantic
 pandas
 pypdf
+jinja2
+python-dotenv

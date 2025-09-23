@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pl">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ subject or "BIP Nadarzyn - nowe wpisy i aktualizacje" }}</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; color: #374151; line-height: 1.6; background-color: #f3f4f6; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%;">
+    <!-- Outer table for email clients that don't support body styling -->
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin: 0; padding: 0; background-color: #f3f4f6;">
+        <tr>
+            <td align="center" style="padding: 20px 10px;">
+
+                <!-- Main container -->
+                <table cellpadding="0" cellspacing="0" border="0" width="650" style="max-width: 650px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); overflow: hidden;">
+
+                    <!-- Header with gradient background -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 32px 30px; text-align: center;">
+                            <h1 style="margin: 0 0 8px 0; color: #ffffff; font-size: 28px; font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                                {{ email_title or "Nowe wpisy i aktualizacje" }}
+                            </h1>
+                            <p style="margin: 0; color: rgba(255,255,255,0.9); font-size: 16px;">
+                                BIP Nadarzyn • {{ generation_time.strftime('%d.%m.%Y') if generation_time else 'Dzisiaj' }}
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 30px;">
+
+                            <!-- Greeting -->
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                <tr>
+                                    <td style="padding-bottom: 15px;">
+                                        <p style="margin: 0; font-size: 16px; color: #374151;">
+                                            {{ greeting or "Drodzy Mieszkańcy," }}
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-bottom: 25px;">
+                                        <p style="margin: 0; font-size: 16px; color: #374151;">
+                                            {{ (intro_text or "Na stronie <strong>BIP Nadarzyn</strong> pojawiły się nowe wpisy i aktualizacje dotyczące Kajetan:") | safe }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Content sections -->
+                            {%- if items_grouped %}
+                            {%- for main_title, group_items in items_grouped.items() %}
+                            <!-- Section card -->
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 24px; background-color: #f8fafb; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; overflow: hidden;">
+                                <!-- Section header -->
+                                <tr>
+                                    <td style="padding: 20px 20px 12px 20px; border-bottom: 1px solid rgba(102, 126, 234, 0.08);">
+                                        <h3 style="margin: 0; font-weight: 600; color: #1f2937; font-size: 18px;">
+                                            {{ main_title }}
+                                        </h3>
+                                        <p style="margin: 4px 0 0 0; font-size: 13px; color: #667eea; font-weight: 500;">
+                                            {{ group_items | length }} {% if group_items | length == 1 %}pozycja{%- else %}pozycje{% endif %}
+                                        </p>
+                                    </td>
+                                </tr>
+
+                                <!-- Items list -->
+                                <tr>
+                                    <td style="padding: 20px 20px 4px 20px;">
+                                        {%- for item in group_items %}
+                                        <!-- Item card -->
+                                        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb;">
+                                            <tr>
+                                                <td style="padding: 16px;">
+                                                    <!-- Item title with status indicator -->
+                                                    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td style="padding-bottom: 8px;">
+                                                                <h4 style="margin: 0; font-size: 15px; font-weight: 600; color: #1f2937; line-height: 1.4;">
+                                                                    <a href="{{ item.url }}" style="color: #667eea; text-decoration: none;">
+                                                                        {{ item.title or item.url }}
+                                                                    </a>
+                                                                </h4>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+
+                                                    <!-- Item meta and action -->
+                                                    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td>
+                                                                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                                                    <tr>
+                                                                        <td style="vertical-align: middle;">
+                                                                            {%- if item.published_at or item.created_at or item.last_modified_at %}
+                                                                            <p style="margin: 0; font-size: 12px; color: #9ca3af;">
+                                                                                {%- if item.last_modified_at %}
+                                                                                Dodano: {{ (item.published_at or item.created_at) | date_format }}<span style="margin: 0 8px;">•</span>Aktualizacja: {{ item.last_modified_at | date_format }}
+                                                                                {%- else %}
+                                                                                Dodano: {{ (item.published_at or item.created_at) | date_format }}
+                                                                                {%- endif %}
+                                                                            </p>
+                                                                            {%- endif %}
+                                                                        </td>
+                                                                        <td style="text-align: right; vertical-align: middle;">
+                                                                            <a href="{{ item.url }}" style="display: inline-block; background-color: #667eea; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                                                                                Otwórz →
+                                                                            </a>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        {%- endfor %}
+                                    </td>
+                                </tr>
+                            </table>
+                            {%- endfor %}
+                            {%- endif %}
+
+                            <!-- Closing -->
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                <tr>
+                                    <td style="padding-top: 20px; padding-bottom: 15px;">
+                                        <p style="margin: 0; font-size: 16px; color: #374151;">
+                                            {{ closing_text or "Zachęcamy do zapoznania się ze szczegółami." }}
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-bottom: 20px;">
+                                        <p style="margin: 0; font-size: 16px; color: #6b7280;">
+                                            {{ signature_text or "Pozdrawiamy," }}<br>
+                                            <strong style="color: #374151;">{{ signature_name or "Kajetany BIP Bot" }}</strong>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+
+                    <!-- Call to action footer -->
+                    <tr>
+                        <td style="background-color: #f8fafb; padding: 25px 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0 0 8px 0; font-size: 13px; color: #6b7280;">
+                                📧 To tylko najnowsze zmiany
+                            </p>
+                            <p style="margin: 0 0 16px 0; font-size: 12px; color: #9ca3af; line-height: 1.4;">
+                                Aby zobaczyć pełną historię wszystkich dokumentów i uchwał dotyczących Kajetan:
+                            </p>
+                            <a href="https://suuriko.github.io/Kajetany_BIP" style="display: inline-block; background-color: #667eea; color: #ffffff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                                📄 Pełna historia BIP Nadarzyn
+                            </a>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+    <!-- Technical footer outside main container -->
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 20px;">
+        <tr>
+            <td style="text-align: center; padding: 0px 12px;">
+                <p style="margin: 0 0 4px 0; font-size: 12px; color: #9ca3af;">
+                    {{ footer_text or "Wiadomość wygenerowana automatycznie przez system monitorowania." }}
+                </p>
+                <p style="margin: 0; font-size: 11px; color: #d1d5db;">
+                    Ostatnia aktualizacja: {{ generation_time.strftime('%d.%m.%Y o %H:%M') if generation_time else 'nieznana' }}
+                </p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

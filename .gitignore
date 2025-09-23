@@ -213,3 +213,4 @@ __marimo__/
 app password.txt
 temp
 email_content.html
+tests/*.html

@@ -152,11 +152,17 @@ class ArticleAttachmentParser(BaseParser):
 class ListAttachmentParser(BaseParser):
     def can_parse(self, url: str, dom: LexborHTMLParser) -> bool:
         anchor = self._get_anchor_from_url(url)
-        return "plik_" in anchor and dom.css_first(f"{CSSSelectors.ARTICLE_NODE} #{anchor}") is None
+        return ("plik_" in anchor or "pliki_" in anchor) and dom.css_first(
+            f"{CSSSelectors.ARTICLE_NODE} #{anchor}"
+        ) is None
 
     def parse(self, url: str, dom: LexborHTMLParser) -> Generator[Optional[ContentItem], None, None]:
         anchor = self._get_anchor_from_url(url)
-        container_node = dom.css_first(f"{CSSSelectors.CONTAINER_NODE}:has(#{anchor})")
+        container_node = (
+            dom.css_first(f"{CSSSelectors.CONTAINER_NODE}:has(#{anchor})")
+            if "plik_" in anchor
+            else dom.css_first(f"#{anchor}")
+        )
 
         if not container_node:
             self.logger.warning(f"Container node not found for attachment: {anchor}")

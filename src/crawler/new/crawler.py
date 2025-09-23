@@ -66,16 +66,26 @@ class Crawler:
 
                     merged_item = item.merge_with_redirect(item_to_crawl)
 
-                    print("New item found:\n", merged_item)
+                    self.logger.info(f"New item found:\n{merged_item}")
                     new_items.append(merged_item.model_dump())
 
+                self.logger.info("")
                 time.sleep(1.5)  # Be respectful to the server
 
         return pd.DataFrame(new_items) if new_items else pd.DataFrame(columns=list(ContentItem.model_fields.keys()))
 
     def _is_duplicate(self, item: ContentItem, past_data: pd.DataFrame) -> bool:
-        """Check if item already exists in past data."""
-        return not past_data.empty and item.url in past_data["url"].values
+        """Check if item already exists in past data by comparing all fields."""
+        if past_data.empty:
+            return False
+
+        # Convert item to DataFrame
+        item_df = pd.DataFrame([item.model_dump()])
+
+        # Compare with past data - check if any row matches exactly
+        merged = pd.merge(past_data, item_df, how="inner", on=list(ContentItem.model_fields.keys()))
+
+        return not merged.empty
 
     def crawl_url(self, url: str, client: HttpClient) -> Generator[ContentItem | RedirectItem | None]:
         resolved_url = url
@@ -108,8 +118,8 @@ class Crawler:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="[%(levelname)s:%(name)s]  %(message)s")
     crawler = Crawler(
-        base_url="https://bip.nadarzyn.pl/redir,szukaj?szukaj_wyniki=1&szukaj=kajetany&szukaj_tryb=0&szukaj_aktualnosci_data_od=&szukaj_aktualnosci_data_do=&szukaj_kalendarium_data_od=&szukaj_kalendarium_data_do=&szukaj_data_wybor=1m&szukaj_data_od=&szukaj_data_do=&szukaj_limit=100",
-        # base_url="https://bip.nadarzyn.pl/1071,rok-2025?nobreakup#akapit_7470",
+        # base_url="https://bip.nadarzyn.pl/redir,szukaj?szukaj_wyniki=1&szukaj=kajetany&szukaj_tryb=0&szukaj_aktualnosci_data_od=&szukaj_aktualnosci_data_do=&szukaj_kalendarium_data_od=&szukaj_kalendarium_data_do=&szukaj_data_wybor=1m&szukaj_data_od=&szukaj_data_do=&szukaj_limit=100",
+        base_url="https://bip.nadarzyn.pl/994,mpzp-dla-obszarow-nr-i-ii-we-wsi-kajetany-dz-ew-245-1-do-245-8-247-1-do-247-3-247-5-oraz-247-6?nobreakup#pliki_4697",
         parsers=[
             SearchPageConfiguratorParser(),
             SearchPageResultsParser(),
