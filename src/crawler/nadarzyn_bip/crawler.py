@@ -36,7 +36,7 @@ class Crawler:
         Returns:
             DataFrame containing newly found items
         """
-        new_items = []
+        new_items: list[ContentItem] = []
         items_to_crawl: list[RedirectItem] = [RedirectItem(url=self.base_url)]
 
         with HttpClient() as client:
@@ -53,7 +53,7 @@ class Crawler:
                     merged_item = item.merge_with_redirect(item_to_crawl)
 
                     self.logger.info(f"New item found:\n{merged_item}")
-                    new_items.append(merged_item.model_dump())
+                    new_items.append(merged_item)
 
                 self.logger.info("")
                 time.sleep(1.5)  # Be respectful to the server

@@ -25,7 +25,7 @@ class ContentItem(ItemMetadata):
     title: str
     description: str | None = None
 
-    def merge_with_redirect(self, redirect: RedirectItem) -> ContentItem:
+    def merge_with_redirect(self, redirect: RedirectItem) -> "ContentItem":
         """Merge current ContentItem with data from a RedirectItem, preferring existing values."""
         return ContentItem(
             url=self.url,
