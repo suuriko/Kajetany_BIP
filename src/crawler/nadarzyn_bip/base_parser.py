@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 
+from src.crawler.datetime_extractor import extract_datetime
 from src.models.elements import ContentItem, RedirectItem
 
 
@@ -74,8 +75,6 @@ class BaseParser(abc.ABC):
         """
         if not node:
             return None, None, None
-
-        from src.crawler.datetime_extractor import extract_datetime
 
         published_at = extract_datetime(
             self._get_node_text_or_default(self._safe_get_node(node, ".data_publikacji .system_metryka_wartosc"))
