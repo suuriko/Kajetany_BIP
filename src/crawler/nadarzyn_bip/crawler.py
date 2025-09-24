@@ -2,22 +2,11 @@ import logging
 import time
 from typing import Generator
 
-import pandas as pd
 from selectolax.lexbor import LexborHTMLParser
 
 from src.crawler.http_client import HttpClient
 from src.crawler.nadarzyn_bip.base_parser import BaseParser
-from src.crawler.nadarzyn_bip.parser import (
-    ArticleAttachmentParser,
-    ArticleBriefParser,
-    ArticleParser,
-    FullArticleParser,
-    ListAttachmentParser,
-    SearchPageConfiguratorParser,
-    SearchPageResultsParser,
-)
-from src.mail_delivery_service import generate_email_content_html
-from src.models.elements import ContentItem, RedirectItem
+from src.models import ContentItem, RedirectItem
 
 
 class Crawler:
@@ -38,11 +27,11 @@ class Crawler:
         self.base_url = base_url
         self.parsers = parsers
 
-    def crawl(self, past_data: pd.DataFrame) -> pd.DataFrame:
+    def crawl(self) -> list[ContentItem]:
         """Crawl all configured URLs and return new items.
 
         Args:
-            past_data: DataFrame containing previously found items
+            past_items: List of previously found items
 
         Returns:
             DataFrame containing newly found items
@@ -60,9 +49,6 @@ class Crawler:
                         self.logger.info(f"Found redirect to {item.url}, adding to crawl list")
                         items_to_crawl.append(item)
                         continue
-                    if self._is_duplicate(item, past_data):
-                        self.logger.info(f"Item already exists: {item.title}")
-                        continue
 
                     merged_item = item.merge_with_redirect(item_to_crawl)
 
@@ -72,40 +58,7 @@ class Crawler:
                 self.logger.info("")
                 time.sleep(1.5)  # Be respectful to the server
 
-        return pd.DataFrame(new_items) if new_items else pd.DataFrame(columns=list(ContentItem.model_fields.keys()))
-
-    def _is_duplicate(self, item: ContentItem, past_data: pd.DataFrame) -> bool:
-        """Check if item already exists in past data by comparing key fields."""
-        if past_data.empty:
-            return False
-
-        # Convert past_data date columns to datetime for proper comparison
-        past_data_copy = past_data.copy()
-        for col in ["last_modified_at", "created_at", "published_at"]:
-            if col in past_data_copy.columns:
-                past_data_copy[col] = pd.to_datetime(past_data_copy[col], errors="coerce")
-
-        item_last_modified = pd.to_datetime(item.last_modified_at) if item.last_modified_at else pd.NaT
-        item_created = pd.to_datetime(item.created_at) if item.created_at else pd.NaT
-        item_published = pd.to_datetime(item.published_at) if item.published_at else pd.NaT
-
-        # Helper function to compare values that might be NaN/None
-        def values_equal(series_val, item_val):
-            """Compare values handling NaN/None cases properly."""
-            if pd.isna(series_val) and pd.isna(item_val):
-                return True
-            return series_val == item_val
-
-        # Build duplicate mask with proper NaN handling
-        duplicate_mask = (
-            (past_data_copy["title"] == item.title)
-            & (past_data_copy["url"] == item.url)
-            & past_data_copy["last_modified_at"].apply(lambda x: values_equal(x, item_last_modified))
-            & past_data_copy["created_at"].apply(lambda x: values_equal(x, item_created))
-            & past_data_copy["published_at"].apply(lambda x: values_equal(x, item_published))
-        )
-
-        return bool(duplicate_mask.any())
+        return new_items
 
     def crawl_url(self, url: str, client: HttpClient) -> Generator[ContentItem | RedirectItem | None]:
         resolved_url = url
@@ -133,26 +86,3 @@ class Crawler:
         except Exception as e:
             self.logger.error(f"Failed to crawl {resolved_url}: {e}")
             raise
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format="[%(levelname)s:%(name)s]  %(message)s")
-    crawler = Crawler(
-        # base_url="https://bip.nadarzyn.pl/redir,szukaj?szukaj_wyniki=1&szukaj=kajetany&szukaj_tryb=0&szukaj_aktualnosci_data_od=&szukaj_aktualnosci_data_do=&szukaj_kalendarium_data_od=&szukaj_kalendarium_data_do=&szukaj_data_wybor=1m&szukaj_data_od=&szukaj_data_do=&szukaj_limit=100",
-        base_url="https://bip.nadarzyn.pl/994,mpzp-dla-obszarow-nr-i-ii-we-wsi-kajetany-dz-ew-245-1-do-245-8-247-1-do-247-3-247-5-oraz-247-6?nobreakup#pliki_4697",
-        parsers=[
-            SearchPageConfiguratorParser(),
-            SearchPageResultsParser(),
-            ArticleBriefParser(),
-            ArticleParser(),
-            ArticleAttachmentParser(),
-            ListAttachmentParser(),
-            FullArticleParser(),
-        ],
-    )
-    new_data = crawler.crawl(pd.DataFrame(columns=[ContentItem.model_fields.keys()]))
-
-    html = generate_email_content_html(new_data)
-    if html:
-        with open("email_content.html", "w", encoding="utf-8") as f:
-            f.write(html)
