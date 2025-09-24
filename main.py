@@ -9,6 +9,7 @@ from src.crawler.nadarzyn_bip.parser import (
     ArticleAttachmentParser,
     ArticleBriefParser,
     ArticleParser,
+    AuctionAttachmentParser,
     FullArticleParser,
     ListAttachmentParser,
     SearchPageConfiguratorParser,
@@ -35,7 +36,7 @@ def read_past_csv():
     try:
         return pd.read_csv(RESULTS_FILE)
     except FileNotFoundError:
-        return pd.DataFrame(columns=list(ContentItem.model_fields.keys()))
+        return pd.DataFrame(columns=[*ContentItem.model_fields.keys()])
 
 
 def run():
@@ -53,6 +54,7 @@ def run():
         parsers=[
             SearchPageConfiguratorParser(),
             SearchPageResultsParser(),
+            AuctionAttachmentParser(),
             ArticleBriefParser(),
             ArticleParser(),
             ArticleAttachmentParser(),
@@ -60,14 +62,14 @@ def run():
             FullArticleParser(),
         ],
     )
-    new_data = crawler.crawl()
+    crawled_items = crawler.crawl()
+    new_data = [item for item in crawled_items if not item_repository.exists(item)]
 
     if len(new_data) > 0:
         logger.info(f"New items found! Saving to {RESULTS_FILE}")
         item_repository.add_items(new_data)
         item_repository.to_dataframe().to_csv(RESULTS_FILE, index=False)
 
-        # Generate HTML report with new items count
         html_output = html_generator.generate_from_csv(csv_path=RESULTS_FILE, output_path="gh-pages/index.html")
         logger.info(f"HTML report generated: {html_output}")
 

@@ -9,12 +9,20 @@ class ItemRepository:
     @classmethod
     def from_dataframe(cls, df: pd.DataFrame) -> "ItemRepository":
         """Create a new repository from a DataFrame."""
-        try:
-            items = [ContentItem(**row.to_dict()) for _, row in df.iterrows()]
-            return cls(items)
-        except Exception as e:
-            logging.getLogger("item_repository").error(f"Failed to create repository from DataFrame: {e}")
-            raise ValueError(f"Invalid DataFrame structure: {e}") from e
+        items = []
+        for _, row in df.iterrows():
+            row_dict = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
+            item = ContentItem(
+                url=str(row_dict["url"]),
+                main_title=str(row_dict["main_title"]),
+                title=str(row_dict["title"]),
+                description=row_dict.get("description"),
+                published_at=row_dict.get("published_at"),
+                created_at=row_dict.get("created_at"),
+                last_modified_at=row_dict.get("last_modified_at"),
+            )
+            items.append(item)
+        return cls(items)
 
     def __init__(self, items: list[ContentItem] | None = None):
         self.logger = logging.getLogger("item_repository")
@@ -63,5 +71,7 @@ class ItemRepository:
     def to_dataframe(self) -> pd.DataFrame:
         """Convert repository items to a DataFrame."""
         return pd.DataFrame(
-            columns=list(ContentItem.model_fields.keys()), data=[item.model_dump() for item in self._items]
+            # Ensure the columns are in the correct order
+            columns=["url", "main_title", "title", "description", "published_at", "created_at", "last_modified_at"],
+            data=[item.model_dump() for item in self._items],
         )

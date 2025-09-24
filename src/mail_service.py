@@ -7,7 +7,7 @@ from email.message import EmailMessage
 class MailService:
     def __init__(self, user: str, password: str):
         if not user or not password:
-            raise ValueError("SMTP_USER and SMTP_PASS must be set and non-empty.")
+            raise ValueError("User and password must be set.")
         self.user = user
         self.password = password
 

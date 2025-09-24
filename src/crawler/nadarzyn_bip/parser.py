@@ -16,8 +16,12 @@ class CSSSelectors:
     MODIFICATION_DATE = ".data_mod .system_metryka_wartosc"
     ARTICLE_TITLE = "h3"
     ARTICLE_NODE = ".obiekt_akapit"
+    AUCTION_EVENT_NODE = ".przetargi_zdarzenie"
+    AUCTION_EVENT_TITLE = ".przetargi_tytul"
+    AUCTION_ATTACHMENT_NODE = ".przetargi_zalaczniki_li"
     CONTAINER_NODE = ".obiekt_pliki"
     FILE_LINK = ".pliki_link"
+    AUCTION_FILE_LINK = ".przetargi_zalacznik_link"
     SEARCH_RESULTS = "#PageContent ol.szukaj_wyniki li"
     SEARCH_TITLE = ".szukaj_tytul > a"
     SEARCH_SNIPPET = ".szukaj_wyniki_snippet"
@@ -125,6 +129,39 @@ class ArticleAttachmentParser(BaseParser):
         )
 
         metadata = self._extract_metadata(article_node)
+
+        yield ContentItem(
+            main_title=article_title, title=attachment_name, description=None, url=url, **metadata.model_dump()
+        )
+
+
+class AuctionAttachmentParser(BaseParser):
+    def can_parse(self, url: str, dom: LexborHTMLParser) -> bool:
+        anchor = self._get_anchor_from_url(url)
+        return (
+            "przetargi_zdarzenie_plik_" in anchor
+            and dom.css_first(f"{CSSSelectors.AUCTION_EVENT_NODE} #{anchor}") is not None
+        )
+
+    def parse(self, url: str, dom: LexborHTMLParser) -> Generator[Optional[ContentItem], None, None]:
+        anchor = self._get_anchor_from_url(url)
+        container_node = dom.css_first(f"{CSSSelectors.AUCTION_EVENT_NODE}:has(#{anchor})")
+
+        if not container_node:
+            self.logger.warning(f"Container node not found for attachment: {anchor}")
+            return
+
+        article_title = (
+            self._get_node_text_or_default(self._safe_get_node(container_node, CSSSelectors.AUCTION_EVENT_TITLE))
+            or "Brak tytułu"
+        )
+        attachment_node = self._safe_get_node(container_node, f"#{anchor}")
+        attachment_name = (
+            self._get_node_text_or_default(self._safe_get_node(attachment_node, CSSSelectors.AUCTION_FILE_LINK))
+            or "Brak nazwy"
+        )
+
+        metadata = self._extract_metadata(attachment_node)
 
         yield ContentItem(
             main_title=article_title, title=attachment_name, description=None, url=url, **metadata.model_dump()

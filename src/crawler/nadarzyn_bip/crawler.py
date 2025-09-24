@@ -52,7 +52,7 @@ class Crawler:
 
                     merged_item = item.merge_with_redirect(item_to_crawl)
 
-                    self.logger.info(f"New item found:\n{merged_item}")
+                    self.logger.info(f"Item parsed:\n{merged_item}")
                     new_items.append(merged_item)
 
                 self.logger.info("")
@@ -85,4 +85,4 @@ class Crawler:
 
         except Exception as e:
             self.logger.error(f"Failed to crawl {resolved_url}: {e}")
-            raise
+            return None
