@@ -22,7 +22,14 @@
 
 4. Run setup script:
    ```bash
+   # macOS/Linux:
    ./setup.sh
+
+   # Windows (PowerShell - Recommended):
+   .\setup.ps1
+
+   # Windows (Command Prompt):
+   setup.bat
    ```
 
 ### **Manual Setup (Alternative)**
