@@ -22,9 +22,9 @@ from src.models import ContentItem
 # Load environment variables from .env file
 load_dotenv()
 
-SMTP_USER = os.getenv("SMTP_USER")  # Twój Gmail
-SMTP_PASS = os.getenv("SMTP_PASS")  # App Password (16 znaków)
-TO_GROUP = os.getenv("TO_GROUP")  # Adres e-mail grupy docelowej
+SMTP_USER = os.getenv("SMTP_USER")  # Gmail address
+SMTP_PASS = os.getenv("SMTP_PASS")  # App Password (16 characters)
+TO_GROUP = os.getenv("TO_GROUP")  # Target group email address
 
 RESULTS_FILE = "items.csv"
 
