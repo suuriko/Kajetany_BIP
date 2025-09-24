@@ -35,7 +35,7 @@ def read_past_csv():
     try:
         return pd.read_csv(RESULTS_FILE)
     except FileNotFoundError:
-        return pd.DataFrame(columns=[ContentItem.model_fields.keys()])
+        return pd.DataFrame(columns=list(ContentItem.model_fields.keys()))
 
 
 def run():
