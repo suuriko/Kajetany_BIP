@@ -79,14 +79,30 @@ class Crawler:
         if past_data.empty:
             return False
 
-        # Convert last_modified_at to string for comparison
-        item_last_modified = item.last_modified_at.isoformat() if item.last_modified_at else None
+        # Convert past_data date columns to datetime for proper comparison
+        past_data_copy = past_data.copy()
+        for col in ["last_modified_at", "created_at", "published_at"]:
+            if col in past_data_copy.columns:
+                past_data_copy[col] = pd.to_datetime(past_data_copy[col], errors="coerce")
 
-        # Check for duplicates based on title, url, and last_modified_at
+        item_last_modified = pd.to_datetime(item.last_modified_at) if item.last_modified_at else pd.NaT
+        item_created = pd.to_datetime(item.created_at) if item.created_at else pd.NaT
+        item_published = pd.to_datetime(item.published_at) if item.published_at else pd.NaT
+
+        # Helper function to compare values that might be NaN/None
+        def values_equal(series_val, item_val):
+            """Compare values handling NaN/None cases properly."""
+            if pd.isna(series_val) and pd.isna(item_val):
+                return True
+            return series_val == item_val
+
+        # Build duplicate mask with proper NaN handling
         duplicate_mask = (
-            (past_data["title"] == item.title)
-            & (past_data["url"] == item.url)
-            & (past_data["last_modified_at"] == item_last_modified)
+            (past_data_copy["title"] == item.title)
+            & (past_data_copy["url"] == item.url)
+            & past_data_copy["last_modified_at"].apply(lambda x: values_equal(x, item_last_modified))
+            & past_data_copy["created_at"].apply(lambda x: values_equal(x, item_created))
+            & past_data_copy["published_at"].apply(lambda x: values_equal(x, item_published))
         )
 
         return bool(duplicate_mask.any())
