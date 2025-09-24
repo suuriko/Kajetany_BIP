@@ -176,7 +176,7 @@ class ArticleBriefParser(BaseParser):
         article_node = dom.css_first(f"{CSSSelectors.ARTICLE_NODE}#{anchor} {CSSSelectors.BRIEF_ARTICLE}")
 
         if not article_node:
-            self.logger.warning(f"Brief article node not found for anchor: {anchor}")
+            self.logger.warning(f"Brief article node not found for anchor: {anchor} at {url}")
             return
 
         more_link = self._safe_get_node(article_node, CSSSelectors.MORE_LINK)
