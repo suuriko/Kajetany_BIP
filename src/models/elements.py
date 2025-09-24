@@ -5,25 +5,25 @@ import datetime
 from pydantic import BaseModel
 
 
-class RedirectItem(BaseModel):
+class ItemMetadata(BaseModel):
+    published_at: datetime.date | None = None
+    created_at: datetime.date | None = None
+    last_modified_at: datetime.date | None = None
+
+
+class RedirectItem(ItemMetadata):
     url: str
     # The rest of the fields can be filled with partial data available from the redirect page
     main_title: str | None = None
     title: str | None = None
     description: str | None = None
-    published_at: datetime.date | None = None
-    created_at: datetime.date | None = None
-    last_modified_at: datetime.date | None = None
 
 
-class ContentItem(BaseModel):
+class ContentItem(ItemMetadata):
     url: str
     main_title: str
     title: str
     description: str | None = None
-    published_at: datetime.date | None = None
-    created_at: datetime.date | None = None
-    last_modified_at: datetime.date | None = None
 
     def merge_with_redirect(self, redirect: RedirectItem) -> ContentItem:
         """Merge current ContentItem with data from a RedirectItem, preferring existing values."""

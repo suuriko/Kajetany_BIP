@@ -104,17 +104,9 @@ class ArticleParser(BaseParser):
             return
 
         title = self._extract_title(article_node)
-        published_at, created_at, last_modified_at = self._extract_metadata(article_node)
+        metadata = self._extract_metadata(article_node)
 
-        yield ContentItem(
-            main_title=title,
-            title=title,
-            description=None,
-            url=url,
-            published_at=published_at,
-            created_at=created_at,
-            last_modified_at=last_modified_at,
-        )
+        yield ContentItem(main_title=title, title=title, description=None, url=url, **metadata.model_dump())
 
 
 class ArticleAttachmentParser(BaseParser):
@@ -136,16 +128,10 @@ class ArticleAttachmentParser(BaseParser):
             self._get_node_text_or_default(self._safe_get_node(attachment_node, CSSSelectors.FILE_LINK)) or "Brak nazwy"
         )
 
-        published_at, created_at, last_modified_at = self._extract_metadata(article_node)
+        metadata = self._extract_metadata(article_node)
 
         yield ContentItem(
-            main_title=article_title,
-            title=attachment_name,
-            description=None,
-            url=url,
-            published_at=published_at,
-            created_at=created_at,
-            last_modified_at=last_modified_at,
+            main_title=article_title, title=attachment_name, description=None, url=url, **metadata.model_dump()
         )
 
 
@@ -174,16 +160,10 @@ class ListAttachmentParser(BaseParser):
             self._get_node_text_or_default(self._safe_get_node(attachment_node, CSSSelectors.FILE_LINK)) or "Brak nazwy"
         )
 
-        published_at, created_at, last_modified_at = self._extract_metadata(container_node)
+        metadata = self._extract_metadata(container_node)
 
         yield ContentItem(
-            main_title=article_title,
-            title=attachment_name,
-            description=None,
-            url=url,
-            published_at=published_at,
-            created_at=created_at,
-            last_modified_at=last_modified_at,
+            main_title=article_title, title=attachment_name, description=None, url=url, **metadata.model_dump()
         )
 
 
@@ -234,14 +214,6 @@ class FullArticleParser(BaseParser):
             return
 
         title = self._extract_title(article_node)
-        published_at, created_at, last_modified_at = self._extract_metadata(article_node)
+        metadata = self._extract_metadata(article_node)
 
-        yield ContentItem(
-            main_title=title,
-            title=title,
-            description=None,
-            url=url,
-            published_at=published_at,
-            created_at=created_at,
-            last_modified_at=last_modified_at,
-        )
+        yield ContentItem(main_title=title, title=title, description=None, url=url, **metadata.model_dump())
