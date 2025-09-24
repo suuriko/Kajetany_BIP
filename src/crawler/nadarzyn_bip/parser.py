@@ -1,5 +1,5 @@
 from typing import Generator, Optional
-from urllib.parse import urlencode, urljoin, urlparse, urlunparse
+from urllib.parse import urljoin, urlparse, urlunparse
 
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 
@@ -55,11 +55,7 @@ class SearchPageConfiguratorParser(BaseParser):
                 # Add the token to the query parameters
                 query_params["_session_antiCSRF"] = [token_value]
 
-        # Reconstruct the URL with the new parameters
-        new_query = urlencode(query_params, doseq=True)
-        return urlunparse(
-            (parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, new_query, parsed_url.fragment)
-        )
+        return reconstruct_url(parsed_url, query_params)
 
 
 class SearchPageResultsParser(BaseParser):
