@@ -6,8 +6,8 @@ import pandas as pd
 from selectolax.lexbor import LexborHTMLParser
 
 from src.crawler.http_client import HttpClient
-from src.crawler.new.base_parser import BaseParser
-from src.crawler.new.parser import (
+from src.crawler.nadarzyn_bip.base_parser import BaseParser
+from src.crawler.nadarzyn_bip.parser import (
     ArticleAttachmentParser,
     ArticleBriefParser,
     ArticleParser,

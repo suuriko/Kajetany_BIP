@@ -2,8 +2,8 @@ import logging
 
 import pandas as pd
 
-from src.crawler.new.crawler import Crawler
-from src.crawler.new.parser import (
+from src.crawler.nadarzyn_bip.crawler import Crawler
+from src.crawler.nadarzyn_bip.parser import (
     ArticleAttachmentParser,
     ArticleBriefParser,
     ArticleParser,

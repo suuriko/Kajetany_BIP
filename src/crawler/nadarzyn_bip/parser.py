@@ -3,7 +3,7 @@ from urllib.parse import urlencode, urljoin, urlparse, urlunparse
 
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 
-from src.crawler.new.base_parser import BaseParser
+from src.crawler.nadarzyn_bip.base_parser import BaseParser
 from src.crawler.url_manipulation import parse_url_components, reconstruct_url
 from src.models.elements import ContentItem, RedirectItem
 
