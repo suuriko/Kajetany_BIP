@@ -296,24 +296,3 @@ class HTMLGenerator:
             List of template file names
         """
         return list(self.env.list_templates())
-
-
-def quick_generate(csv_path: str = "items.csv", output_path: str = "gh-pages/index.html") -> str:
-    """
-    Quick utility function to generate an HTML report from the default CSV file.
-
-    Args:
-        csv_path: Path to the CSV file with BIP data
-        output_path: Path where the generated HTML file will be saved
-
-    Returns:
-        Path to the generated HTML file
-    """
-    generator = HTMLGenerator()
-    return generator.generate_from_csv(csv_path, output_path)
-
-
-if __name__ == "__main__":
-    # Example usage
-    result = quick_generate()
-    print(f"HTML report generated: {result}")

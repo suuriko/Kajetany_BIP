@@ -1,3 +1,4 @@
+import datetime
 import os
 import smtplib
 import ssl
@@ -61,8 +62,10 @@ def send_to_group(data: pd.DataFrame):
 
     email_content = generate_email_content_html(data)
 
+    date = datetime.date.today().strftime("%d.%m.%Y")
+
     msg = EmailMessage()
-    msg["Subject"] = "[BIP Bot] Nowe wpisy i aktualizacje dla Kajetan w BIP Nadarzyn"
+    msg["Subject"] = "[BIP Bot] Nowości dla Kajetan w BIP Nadarzyn - " + date
     msg["From"] = SMTP_USER
     msg["To"] = TO_GROUP
     msg.set_content(email_content, subtype="html")
