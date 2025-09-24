@@ -12,12 +12,14 @@ Usage:
 
 import datetime
 import locale
+from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
+from src.item_repository import ItemRepository
 from src.models import ContentItem
 
 
@@ -96,54 +98,9 @@ class HTMLGenerator:
         return value[:length].rstrip() + end
 
     @staticmethod
-    def _get_entry_type(item) -> str:
+    def _get_entry_type(item: ContentItem) -> str:
         """Determine if entry is new or updated based on dates."""
-        # If we don't have enough date information, assume it's new
-        if not hasattr(item, "last_modified_at") or not item.last_modified_at:
-            return "nowy"
-
-        # Get reference dates (when the item was first created/published)
-        reference_dates = []
-        if hasattr(item, "created_at") and item.created_at:
-            reference_dates.append(item.created_at)
-        if hasattr(item, "published_at") and item.published_at:
-            reference_dates.append(item.published_at)
-
-        # If no reference dates, assume it's new
-        if not reference_dates:
-            return "nowy"
-
-        # Find the earliest reference date
-        earliest_date = min(reference_dates)
-
-        # If last_modified_at is later than the earliest reference date, it's an update
-        if item.last_modified_at > earliest_date:
-            return "aktualizacja"
-        else:
-            return "nowy"
-
-    def _prepare_items_data(self, items: List[ContentItem]) -> List[Dict[str, Any]]:
-        """
-        Convert ContentItem objects to dictionaries suitable for template rendering.
-
-        Args:
-            items: List of ContentItem objects
-
-        Returns:
-            List of dictionaries with item data
-        """
-        return [
-            {
-                "url": item.url,
-                "main_title": item.main_title,
-                "title": item.title,
-                "description": item.description,
-                "published_at": item.published_at,
-                "created_at": item.created_at,
-                "last_modified_at": item.last_modified_at,
-            }
-            for item in items
-        ]
+        return "aktualizacja" if item.last_modified_at else "nowy"
 
     def generate_report(
         self,
@@ -170,7 +127,7 @@ class HTMLGenerator:
         context = {
             "page_title": "Biuletyn Informacji Publicznej - Nadarzyn",
             "subtitle": "Automatyczny monitoring komunikatów i ogłoszeń dla Kajetan",
-            "items": self._prepare_items_data(items),
+            "items": items,
             "last_updated": datetime.datetime.now().strftime("%d.%m.%Y"),
             "generation_time": datetime.datetime.now(),
         }
@@ -214,37 +171,13 @@ class HTMLGenerator:
         # Read CSV data
         df = pd.read_csv(csv_path)
 
-        # Convert DataFrame rows to ContentItem objects
-        items = []
-        for _, row in df.iterrows():
-            item_data = row.to_dict()
-
-            # Handle date parsing
-            for date_field in ["published_at", "created_at", "last_modified_at"]:
-                if date_field in item_data and pd.notna(item_data[date_field]):
-                    try:
-                        item_data[date_field] = pd.to_datetime(item_data[date_field]).date()
-                    except Exception:
-                        item_data[date_field] = None
-                else:
-                    item_data[date_field] = None
-
-            # Handle string fields - convert NaN to None
-            for string_field in ["description"]:
-                if string_field in item_data and pd.isna(item_data[string_field]):
-                    item_data[string_field] = None
-
-            # Create ContentItem, handling missing fields gracefully
-            try:
-                item = ContentItem(**item_data)
-                items.append(item)
-            except Exception as e:
-                print(f"Warning: Could not create ContentItem from row: {e}")
-                print(f"Row data: {item_data}")
-                continue
+        item_repository = ItemRepository.from_dataframe(df)
 
         return self.generate_report(
-            items=items, output_path=output_path, template_name=template_name, custom_context=custom_context
+            items=item_repository.items,
+            output_path=output_path,
+            template_name=template_name,
+            custom_context=custom_context,
         )
 
     def generate_email_content(
@@ -267,11 +200,9 @@ class HTMLGenerator:
         template = self.env.get_template(template_name)
 
         # Group items by main_title
-        items_grouped = {}
+        items_grouped = defaultdict(list)
         for item in items:
             main_title = item.main_title or "Różne"
-            if main_title not in items_grouped:
-                items_grouped[main_title] = []
             items_grouped[main_title].append(item)
 
         # Prepare context for email template
@@ -287,12 +218,3 @@ class HTMLGenerator:
             context.update(custom_context)
 
         return template.render(**context)
-
-    def list_templates(self) -> List[str]:
-        """
-        List all available templates in the templates directory.
-
-        Returns:
-            List of template file names
-        """
-        return list(self.env.list_templates())
