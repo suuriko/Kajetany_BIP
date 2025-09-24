@@ -13,8 +13,7 @@ from src.crawler.nadarzyn_bip.parser import (
     SearchPageResultsParser,
 )
 from src.html_generator import HTMLGenerator
-from src.mail_delivery_service import send_to_group
-from src.models.elements import ContentItem
+from src.models import ContentItem
 
 RESULTS_FILE = "items.csv"
 

@@ -7,7 +7,7 @@ import datetime
 from pathlib import Path
 
 from src.html_generator import HTMLGenerator
-from src.models.elements import ContentItem
+from src.models import ContentItem
 
 
 def test_email_generation():

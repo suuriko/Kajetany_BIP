@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from src.models.elements import ContentItem
+from src.models import ContentItem
 
 
 class HTMLGenerator:

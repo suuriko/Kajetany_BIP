@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 
 from src.crawler.datetime_extractor import extract_datetime
-from src.models.elements import ContentItem, ItemMetadata, RedirectItem
+from src.models import ContentItem, ItemMetadata, RedirectItem
 
 
 class BaseParser(abc.ABC):
