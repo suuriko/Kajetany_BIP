@@ -75,17 +75,21 @@ class Crawler:
         return pd.DataFrame(new_items) if new_items else pd.DataFrame(columns=list(ContentItem.model_fields.keys()))
 
     def _is_duplicate(self, item: ContentItem, past_data: pd.DataFrame) -> bool:
-        """Check if item already exists in past data by comparing all fields."""
+        """Check if item already exists in past data by comparing key fields."""
         if past_data.empty:
             return False
 
-        # Convert item to DataFrame
-        item_df = pd.DataFrame([item.model_dump()])
+        # Convert last_modified_at to string for comparison
+        item_last_modified = item.last_modified_at.isoformat() if item.last_modified_at else None
 
-        # Compare with past data - check if any row matches exactly
-        merged = pd.merge(past_data, item_df, how="inner", on=list(ContentItem.model_fields.keys()))
+        # Check for duplicates based on title, url, and last_modified_at
+        duplicate_mask = (
+            (past_data["title"] == item.title)
+            & (past_data["url"] == item.url)
+            & (past_data["last_modified_at"] == item_last_modified)
+        )
 
-        return not merged.empty
+        return bool(duplicate_mask.any())
 
     def crawl_url(self, url: str, client: HttpClient) -> Generator[ContentItem | RedirectItem | None]:
         resolved_url = url
