@@ -12,13 +12,15 @@ dependencies = [
     "selectolax",
     "pypdf",
     "pydantic",
-    "pandas"
+    "pandas",
+    "jinja2"
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.0.287",
-    "pre-commit>=3.0.0"
+    "pre-commit>=3.0.0",
+    "python-dotenv"
 ]
 
 [tool.setuptools]
@@ -29,9 +31,10 @@ where = ["."]
 include = ["src*"]
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py312"
 line-length = 120
 src = ["src", "."]
+exclude = ["gh-pages/"]
 
 [tool.ruff.format]
 indent-style = "space"
@@ -45,7 +48,7 @@ ignore = ["E203"]
 "src/mail_delivery_service.py" = ["E501"]  # Allow long lines in HTML email templates
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

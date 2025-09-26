@@ -14,7 +14,7 @@
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
-      "module": "src.crawler.crawler",
+      "module": "src.crawler.nadarzyn_bip.crawler",
       "name": "[Win] Debug Crawler",
       "python": "${workspaceFolder}/venv/Scripts/python",
       "request": "launch",
@@ -34,8 +34,18 @@
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
-      "module": "src.crawler.crawler",
+      "module": "src.crawler.nadarzyn_bip.crawler",
       "name": "[Mac] Debug Crawler",
+      "python": "${workspaceFolder}/venv/bin/python",
+      "request": "launch",
+      "type": "debugpy"
+    },
+    {
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "module": "src.mail_delivery_service",
+      "name": "[Mac] Debug Mail Delivery Service",
       "python": "${workspaceFolder}/venv/bin/python",
       "request": "launch",
       "type": "debugpy"
