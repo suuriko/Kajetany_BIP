@@ -93,7 +93,7 @@ def test_bip_report_generation():
         ContentItem(
             url="https://bip.nadarzyn.pl/88,zawiadomienia-o-zwolaniu-sesji?tresc=18194",
             main_title="Zawiadomienie o zwołaniu Sesji Rady Gminy Nadarzyn",
-            title="Zawiadomienie o XVI Sesji",
+            title="zawiadomienie_o_sesji_(18)_zal_nr_3.pdf(PDF)",
             description=(
                 "Zawiadomienie o zwołaniu XVI Sesji Rady Gminy Nadarzyn na dzień 26 września 2025 roku. "
                 "Załącznik nr 3 do Uchwały Nr Rady Gminy Nadarzyn z dnia Zmiana Tabeli nr 3"
