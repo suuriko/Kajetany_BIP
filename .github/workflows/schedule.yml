@@ -32,7 +32,7 @@ jobs:
               env:
                 SMTP_USER: ${{ secrets.SMTP_USER }}
                 SMTP_PASS: ${{ secrets.SMTP_PASS }}
-                TO_GROUP: ${{ secrets.DEV_TO_GROUP }}
+                TO_GROUP: ${{ secrets.TO_GROUP }}
               run:  python main.py
 
             - name: Configure Git and auth
