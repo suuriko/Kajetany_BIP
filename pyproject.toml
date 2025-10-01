@@ -20,7 +20,9 @@ dependencies = [
 dev = [
     "ruff>=0.0.287",
     "pre-commit>=3.0.0",
-    "python-dotenv"
+    "python-dotenv",
+    "pytest",
+    "pytest-mock"
 ]
 
 [tool.setuptools]
