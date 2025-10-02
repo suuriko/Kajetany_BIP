@@ -27,7 +27,7 @@
     </script>
 </head>
 <body class="bg-gray-100 font-sans leading-relaxed text-gray-800">
-    <div class="max-w-7xl mx-auto p-5">
+    <div class="max-w-7xl mx-auto p-3 pl-1.5 lg:p-5">
         <!-- Header Section -->
         <div class="bg-gradient-to-br from-primary-500 to-secondary-500 text-white p-8 rounded-xl mb-8 text-center shadow-lg">
             <h1 class="text-4xl font-bold mb-2">{{ page_title }}</h1>
@@ -71,22 +71,22 @@
                 </div>
 
                 <!-- Items for this date -->
-                <div class="ml-4 lg:ml-12 space-y-6">
+                <div class="ml-8 lg:ml-12 space-y-6">
             {%- endif %}
 
                     <!-- Main Title Group -->
-                    <div class="space-y-4">
+                    <div class="space-y-3 lg:space-y-4">
                         {%- set main_title_url = date_items[0].url.split('#')[0] %}
-                        <h3 class="border-b border-primary-200 pb-2"><a href="{{ main_title_url }}" target="_blank" class="text-lg font-semibold text-primary-600 hover:text-primary-700 hover:underline transition-colors duration-200">{{ main_title }}</a></h3>
+                        <h3 class="border-b border-primary-200 pb-2 ml-1 lg:ml-0"><a href="{{ main_title_url }}" target="_blank" class="text-lg font-semibold text-primary-600 hover:text-primary-700 hover:underline transition-colors duration-200">{{ main_title }}</a></h3>
 
                         {%- for item in date_items %}
                         <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border-l-4 border-primary-500">
-                            <div class="p-6">
+                            <div class="p-4 lg:p-6">
                                 <!-- Item Header -->
                                 <div class="flex flex-col md:flex-row gap-4 items-start md:justify-between mb-3">
-                                    <div class="flex-1 flex gap-3 items-center">
+                                    <div class="flex-1 flex gap-2 items-center">
                                         <!-- Icon for item type -->
-                                        <div class="text-lg flex-shrink-0 mt-0.5">
+                                        <div class="text-sm flex-shrink-0 mt-0.5">
                                             {%- if item.attachment_url %}
                                             📎
                                             {%- else %}
