@@ -72,6 +72,15 @@ class ItemRepository:
         """Convert repository items to a DataFrame."""
         return pd.DataFrame(
             # Ensure the columns are in the correct order
-            columns=["url", "main_title", "title", "description", "published_at", "created_at", "last_modified_at"],
+            columns=[
+                "url",
+                "main_title",
+                "title",
+                "description",
+                "attachment_url",
+                "published_at",
+                "created_at",
+                "last_modified_at",
+            ],
             data=[item.model_dump() for item in self._items],
         )

@@ -102,6 +102,44 @@ class HTMLGenerator:
         """Determine if entry is new or updated based on dates."""
         return "aktualizacja" if item.last_modified_at else "nowy"
 
+    @staticmethod
+    def _group_items_by_date_and_main_title(items: List[ContentItem]) -> List[tuple[str, str, List[ContentItem]]]:
+        """
+        Group items by date and main_title, then sort them in descending order.
+
+        Args:
+            items: List of ContentItem objects to group
+
+        Returns:
+            List of tuples (date_string, main_title, items_list) sorted by date descending
+        """
+        # First group by date
+        items_by_date = defaultdict(list)
+
+        for item in items:
+            # Get the most relevant date for grouping
+            item_date = item.last_modified_at or item.created_at or item.published_at
+            if item_date:
+                date_str = item_date.strftime("%Y-%m-%d")
+                items_by_date[date_str].append(item)
+
+        # Now group by main_title within each date and flatten the structure
+        result = []
+        for date_str in sorted(items_by_date.keys(), reverse=True):
+            items_for_date = items_by_date[date_str]
+
+            # Group by main_title
+            items_by_title = defaultdict(list)
+            for item in items_for_date:
+                main_title = item.main_title or "Różne"
+                items_by_title[main_title].append(item)
+
+            # Add each group as a separate tuple
+            for main_title in sorted(items_by_title.keys()):
+                result.append((date_str, main_title, items_by_title[main_title]))
+
+        return result
+
     def generate_report(
         self,
         items: List[ContentItem],
@@ -123,11 +161,15 @@ class HTMLGenerator:
         """
         template = self.env.get_template(template_name)
 
+        # Group items by date for timeline display
+        items_by_date = self._group_items_by_date_and_main_title(items)
+
         # Prepare template context
         context = {
             "page_title": "Biuletyn Informacji Publicznej - Nadarzyn",
             "subtitle": "Automatyczny monitoring komunikatów i ogłoszeń dla Kajetan",
             "items": items,
+            "items_by_date": items_by_date,
             "last_updated": datetime.datetime.now().strftime("%d.%m.%Y"),
             "generation_time": datetime.datetime.now(),
         }

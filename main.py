@@ -50,7 +50,8 @@ def run():
     item_repository = ItemRepository.from_dataframe(past_data)
 
     crawler = Crawler(
-        base_url="https://bip.nadarzyn.pl/redir,szukaj?szukaj_wyniki=1&szukaj=kajetany&szukaj_tryb=0&szukaj_aktualnosci_data_od=&szukaj_aktualnosci_data_do=&szukaj_kalendarium_data_od=&szukaj_kalendarium_data_do=&szukaj_data_wybor=1m&szukaj_data_od=&szukaj_data_do=&szukaj_limit=100",
+        # base_url="https://bip.nadarzyn.pl/redir,szukaj?szukaj_wyniki=1&szukaj=kajetany&szukaj_tryb=0&szukaj_aktualnosci_data_od=&szukaj_aktualnosci_data_do=&szukaj_kalendarium_data_od=&szukaj_kalendarium_data_do=&szukaj_data_wybor=1m&szukaj_data_od=&szukaj_data_do=&szukaj_limit=100",
+        base_url="https://bip.nadarzyn.pl/redir,szukaj?szukaj_wyniki=1&szukaj=kajetany&szukaj_tryb=0&szukaj_aktualnosci_data_od=&szukaj_aktualnosci_data_do=&szukaj_kalendarium_data_od=&szukaj_kalendarium_data_do=&szukaj_data_wybor=period&szukaj_data_od=2025-01-01&szukaj_data_do=2025-10-03&szukaj_limit=100",
         parsers=[
             SearchPageConfiguratorParser(),
             SearchPageResultsParser(),
