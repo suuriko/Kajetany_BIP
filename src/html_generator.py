@@ -241,15 +241,13 @@ class HTMLGenerator:
         """
         template = self.env.get_template(template_name)
 
-        # Group items by main_title
-        items_grouped = defaultdict(list)
-        for item in items:
-            main_title = item.main_title or "Różne"
-            items_grouped[main_title].append(item)
+        # Group items by date and main_title for timeline display
+        items_by_date = self._group_items_by_date_and_main_title(items)
 
         # Prepare context for email template
         context = {
-            "items_grouped": items_grouped,
+            "items": items,
+            "items_by_date": items_by_date,
             "total_count": len(items),
             "subject": "[BIP Bot] Nowe wpisy i aktualizacje dla Kajetan w BIP Nadarzyn",
             "generation_time": datetime.datetime.now(),
