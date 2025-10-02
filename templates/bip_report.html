@@ -76,25 +76,43 @@
 
                     <!-- Main Title Group -->
                     <div class="space-y-4">
-                        <h3 class="text-lg font-semibold text-primary-600 border-b border-primary-200 pb-2">{{ main_title }}</h3>
+                        {%- set main_title_url = date_items[0].url.split('#')[0] %}
+                        <h3 class="border-b border-primary-200 pb-2"><a href="{{ main_title_url }}" target="_blank" class="text-lg font-semibold text-primary-600 hover:text-primary-700 hover:underline transition-colors duration-200">{{ main_title }}</a></h3>
 
                         {%- for item in date_items %}
                         <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border-l-4 border-primary-500">
                             <div class="p-6">
                                 <!-- Item Header -->
                                 <div class="flex flex-col md:flex-row gap-4 items-start md:justify-between mb-3">
-                                    <div class="flex-1">
-                                        <h4 class="text-lg font-semibold text-gray-900 leading-tight">
-                                            <a href="{{ item.url }}" target="_blank" class="hover:text-primary-600 hover:underline transition-colors duration-200" style="overflow-wrap: anywhere;">
-                                                {{ item.title }}
-                                            </a>
-                                        </h4>
+                                    <div class="flex-1 flex gap-3 items-center">
+                                        <!-- Icon for item type -->
+                                        <div class="text-lg flex-shrink-0 mt-0.5">
+                                            {%- if item.attachment_url %}
+                                            📎
+                                            {%- else %}
+                                            📄
+                                            {%- endif %}
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="text-lg font-semibold text-gray-900 leading-tight">
+                                                <a href="{{ item.url }}" target="_blank" class="hover:text-primary-600 hover:underline transition-colors duration-200" style="overflow-wrap: anywhere;">
+                                                    {{ item.title }}
+                                                </a>
+                                            </h4>
+                                        </div>
                                     </div>
-                                    <div class="md:self-center flex-shrink-0">
-                                        <a href="{{ item.url }}" target="_blank" class="inline-flex items-center rounded-lg bg-primary-500 text-white px-4 py-2 text-sm hover:bg-primary-600 transition-colors duration-200">
-                                            Otwórz →
+                                    <div class="md:self-center flex-shrink-0 flex gap-2">
+                                        {%- if item.attachment_url %}
+                                        <!-- Direct download link for attachments -->
+                                        <a href="{{ item.attachment_url }}" target="_blank" class="inline-flex items-center rounded-lg bg-gray-500 text-white px-4 py-2 text-sm  gap-1 hover:bg-gray-600 transition-colors duration-200" title="Pobierz załącznik">
+                                            Pobierz plik
                                         </a>
-                                </div>
+                                        {%- endif %}
+                                        <!-- Link to BIP page -->
+                                        <a href="{{ item.url }}" target="_blank" class="inline-flex items-center rounded-lg bg-primary-500 text-white px-4 py-2 text-sm hover:bg-primary-600 transition-colors duration-200" title="Otwórz na stronie BIP">
+                                            Otwórz link
+                                        </a>
+                                    </div>
                             </div>
 
                             <!-- Item Description -->

@@ -17,6 +17,7 @@ class ItemRepository:
                 main_title=str(row_dict["main_title"]),
                 title=str(row_dict["title"]),
                 description=row_dict.get("description"),
+                attachment_url=row_dict.get("attachment_url"),
                 published_at=row_dict.get("published_at"),
                 created_at=row_dict.get("created_at"),
                 last_modified_at=row_dict.get("last_modified_at"),
