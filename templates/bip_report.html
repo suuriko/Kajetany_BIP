@@ -27,7 +27,7 @@
     </script>
 </head>
 <body class="bg-gray-100 font-sans leading-relaxed text-gray-800">
-    <div class="max-w-7xl mx-auto p-5">
+    <div class="max-w-7xl mx-auto p-3 pl-1.5 lg:p-5">
         <!-- Header Section -->
         <div class="bg-gradient-to-br from-primary-500 to-secondary-500 text-white p-8 rounded-xl mb-8 text-center shadow-lg">
             <h1 class="text-4xl font-bold mb-2">{{ page_title }}</h1>
@@ -42,23 +42,19 @@
         {%- if items %}
         <!-- Timeline Content -->
         <div class="max-w-4xl mx-auto">
-            {%- set items_by_date = {} %}
-            {%- for item in items %}
-                {%- set item_date = item.last_modified_at or item.created_at or item.published_at %}
-                {%- if item_date %}
-                    {%- set date_str = item_date.strftime('%Y-%m-%d') %}
-                    {%- if date_str not in items_by_date %}
-                        {%- set _ = items_by_date.update({date_str: []}) %}
-                    {%- endif %}
-                    {%- set _ = items_by_date[date_str].append(item) %}
-                {%- endif %}
-            {%- endfor %}
-
-            {%- for date_str, date_items in items_by_date.items() | sort(reverse=true) %}
+            {%- for date_str, main_title, date_items in items_by_date %}
             {%- set date_obj = date_items[0].last_modified_at or date_items[0].created_at or date_items[0].published_at %}
+
+            {# Check if this is a new date (either first iteration or date changed) #}
+            {%- set is_new_date = loop.first or (loop.previtem and loop.previtem[0] != date_str) %}
+            {%- set is_last_of_date = loop.last or (not loop.last and items_by_date[loop.index0 + 1][0] != date_str) %}
+
+            {# Open date section if new date #}
+            {%- if is_new_date %}
             <div class="relative mb-8">
                 <!-- Timeline Line -->
-                {%- if not loop.last %}
+                {%- set has_more_dates = not loop.last and items_by_date[loop.index0 + 1][0] != date_str %}
+                {%- if has_more_dates or not loop.last %}
                 <div class="absolute left-4 top-8 w-0.5 h-full bg-gray-300" style="z-index: -1;"></div>
                 {%- endif %}
 
@@ -75,27 +71,48 @@
                 </div>
 
                 <!-- Items for this date -->
-                <div class="ml-4 lg:ml-12 space-y-4">
-                    {%- for item in date_items %}
-                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border-l-4 border-primary-500">
-                        <div class="p-6">
-                            <!-- Item Header -->
-                            <div class="flex flex-col md:flex-row gap-4 items-start md:justify-between mb-3">
-                                <div class="flex-1">
-                                    {%- if item.main_title %}
-                                    <div class="text-sm font-medium text-gray-500 mb-1">{{ item.main_title }}</div>
-                                    {%- endif %}
-                                    <h3 class="text-lg font-semibold text-gray-900 leading-tight">
-                                        <a href="{{ item.url }}" target="_blank" class="hover:text-primary-600 hover:underline transition-colors duration-200" style="overflow-wrap: anywhere;">
-                                            {{ item.title }}
+                <div class="ml-8 lg:ml-12 space-y-6">
+            {%- endif %}
+
+                    <!-- Main Title Group -->
+                    <div class="space-y-3 lg:space-y-4">
+                        {%- set main_title_url = date_items[0].url.split('#')[0] %}
+                        <h3 class="border-b border-primary-200 pb-2 ml-1 lg:ml-0"><a href="{{ main_title_url }}" target="_blank" class="text-lg font-semibold text-primary-600 hover:text-primary-700 hover:underline transition-colors duration-200">{{ main_title }}</a></h3>
+
+                        {%- for item in date_items %}
+                        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border-l-4 border-primary-500">
+                            <div class="p-4 lg:p-6">
+                                <!-- Item Header -->
+                                <div class="flex flex-col md:flex-row gap-4 items-start md:justify-between mb-3">
+                                    <div class="flex-1 flex gap-2 items-center">
+                                        <!-- Icon for item type -->
+                                        <div class="text-sm flex-shrink-0 mt-0.5">
+                                            {%- if item.attachment_url %}
+                                            📎
+                                            {%- else %}
+                                            📄
+                                            {%- endif %}
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="text-lg font-semibold text-gray-900 leading-tight">
+                                                <a href="{{ item.url }}" target="_blank" class="hover:text-primary-600 hover:underline transition-colors duration-200" style="overflow-wrap: anywhere;">
+                                                    {{ item.title }}
+                                                </a>
+                                            </h4>
+                                        </div>
+                                    </div>
+                                    <div class="md:self-center flex-shrink-0 flex gap-2">
+                                        {%- if item.attachment_url %}
+                                        <!-- Direct download link for attachments -->
+                                        <a href="{{ item.attachment_url }}" target="_blank" class="inline-flex items-center rounded-lg bg-gray-500 text-white px-4 py-2 text-sm  gap-1 hover:bg-gray-600 transition-colors duration-200" title="Pobierz załącznik">
+                                            Pobierz plik
                                         </a>
-                                    </h3>
-                                </div>
-                                <div class="md:self-center flex-shrink-0">
-                                    <a href="{{ item.url }}" target="_blank" class="inline-flex items-center rounded-lg bg-primary-500 text-white px-4 py-2 text-sm hover:bg-primary-600 transition-colors duration-200">
-                                        Otwórz →
-                                    </a>
-                                </div>
+                                        {%- endif %}
+                                        <!-- Link to BIP page -->
+                                        <a href="{{ item.url }}" target="_blank" class="inline-flex items-center rounded-lg bg-primary-500 text-white px-4 py-2 text-sm hover:bg-primary-600 transition-colors duration-200" title="Otwórz na stronie BIP">
+                                            Otwórz link
+                                        </a>
+                                    </div>
                             </div>
 
                             <!-- Item Description -->
@@ -135,10 +152,15 @@
                                 {%- endif %}
                             </div>
                         </div>
+                        </div>
+                        {%- endfor %}
                     </div>
-                    {%- endfor %}
-                </div>
-            </div>
+
+            {# Close date section if this is the last item of this date #}
+            {%- if is_last_of_date %}
+                </div> <!-- Close items for this date -->
+            </div> <!-- Close date section -->
+            {%- endif %}
             {%- endfor %}
         </div>
         {%- else %}

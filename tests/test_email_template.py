@@ -3,55 +3,18 @@
 Test script to verify email template generation works correctly.
 """
 
-import datetime
 from pathlib import Path
 
+from fixture_items import get_sample_items
 from src.html_generator import HTMLGenerator
-from src.models import ContentItem
 
 
 def test_email_generation():
-    """Test email template generation with sample data."""
+    """Test email template generation with extensive sample data."""
 
-    # Create sample content items - kilka pozycji w jednej grupie
-    items = [
-        # New entry (only published_at, without last_modified_at)
-        ContentItem(
-            url="https://bip.nadarzyn.pl/1053,rok-2025?tresc=18157#uchwala_120",
-            main_title="Uchwały Rady Gminy Nadarzyn podjęte na XV Sesji",
-            title="Uchwała Nr XV/120/2025 w sprawie wyrażenia zgody na przekształcenie zakładu budżetowego",
-            description=(
-                "Uchwała dotyczy przekształcenia Zakładu Budżetowego Gospodarki Komunalnej i Mieszkaniowej "
-                "w Nadarzynie w spółkę z ograniczoną odpowiedzialnością."
-            ),
-            created_at=datetime.date(2025, 8, 26),
-            published_at=datetime.date(2025, 8, 26),
-            last_modified_at=None,  # No update - a new entry
-        ),
-        # Update (last_modified_at > created_at)
-        ContentItem(
-            url="https://bip.nadarzyn.pl/1053,rok-2025?tresc=18157#uchwala_121",
-            main_title="Uchwały Rady Gminy Nadarzyn podjęte na XV Sesji",
-            title="Uchwała Nr XV/121/2025 w sprawie zmian w budżecie gminy na rok 2025",
-            description=(
-                "Uchwała wprowadza zmiany w budżecie gminy Nadarzyn na rok 2025 - zwiększenie "
-                "dochodów i wydatków o kwotę 250.000 zł na inwestycje infrastrukturalne."
-            ),
-            created_at=datetime.date(2025, 8, 20),
-            published_at=datetime.date(2025, 8, 20),
-            last_modified_at=datetime.date(2025, 8, 26),  # Zaktualizowane później
-        ),
-        # New entry (only published_at, without last_modified_at)
-        ContentItem(
-            url="https://bip.nadarzyn.pl/1053,rok-2025?tresc=18157#uchwala_122",
-            main_title="Uchwały Rady Gminy Nadarzyn podjęte na XV Sesji",
-            title="Uchwała Nr XV/122/2025 w sprawie nadania nazwy ulicy",
-            description=None,
-            created_at=datetime.date(2025, 8, 26),
-            published_at=datetime.date(2025, 8, 26),
-            last_modified_at=None,  # No update - a new entry
-        ),
-    ]
+    # Create sample content items with realistic BIP data
+    # Mix of articles and file attachments across multiple dates and categories
+    items = get_sample_items()
 
     print("=== Email Template Generation Test ===\n")
 
