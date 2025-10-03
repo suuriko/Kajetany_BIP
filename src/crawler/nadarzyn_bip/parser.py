@@ -127,11 +127,17 @@ class ArticleAttachmentParser(BaseParser):
         attachment_name = (
             self._get_node_text_or_default(self._safe_get_node(attachment_node, CSSSelectors.FILE_LINK)) or "Brak nazwy"
         )
+        attachment_url = self._get_anchor_href(attachment_node, url)
 
         metadata = self._extract_metadata(article_node)
 
         yield ContentItem(
-            main_title=article_title, title=attachment_name, description=None, url=url, **metadata.model_dump()
+            main_title=article_title,
+            title=attachment_name,
+            description=None,
+            url=url,
+            attachment_url=attachment_url,
+            **metadata.model_dump(),
         )
 
 
@@ -160,11 +166,17 @@ class AuctionAttachmentParser(BaseParser):
             self._get_node_text_or_default(self._safe_get_node(attachment_node, CSSSelectors.AUCTION_FILE_LINK))
             or "Brak nazwy"
         )
+        attachment_url = self._get_anchor_href(attachment_node, url)
 
         metadata = self._extract_metadata(attachment_node)
 
         yield ContentItem(
-            main_title=article_title, title=attachment_name, description=None, url=url, **metadata.model_dump()
+            main_title=article_title,
+            title=attachment_name,
+            description=None,
+            url=url,
+            attachment_url=attachment_url,
+            **metadata.model_dump(),
         )
 
 
@@ -192,11 +204,17 @@ class ListAttachmentParser(BaseParser):
         attachment_name = (
             self._get_node_text_or_default(self._safe_get_node(attachment_node, CSSSelectors.FILE_LINK)) or "Brak nazwy"
         )
+        attachment_url = self._get_anchor_href(attachment_node, url)
 
         metadata = self._extract_metadata(container_node)
 
         yield ContentItem(
-            main_title=article_title, title=attachment_name, description=None, url=url, **metadata.model_dump()
+            main_title=article_title,
+            title=attachment_name,
+            description=None,
+            url=url,
+            attachment_url=attachment_url,
+            **metadata.model_dump(),
         )
 
 

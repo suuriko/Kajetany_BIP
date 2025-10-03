@@ -58,44 +58,84 @@
                             </table>
 
                             <!-- Content sections -->
-                            {%- if items_grouped %}
-                            {%- for main_title, group_items in items_grouped.items() %}
+                            {%- if items_by_date %}
+                            {%- for date_str, main_title, date_items in items_by_date %}
+                            {%- set date_obj = date_items[0].last_modified_at or date_items[0].created_at or date_items[0].published_at %}
+                            {%- set is_new_date = loop.first or (loop.previtem and loop.previtem[0] != date_str) %}
+
+                            {# Date header #}
+                            {%- if is_new_date %}
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px;">
+                                <tr>
+                                    <td style="padding: 8px 0; border-bottom: 2px solid #667eea;">
+                                        <h2 style="margin: 0; font-size: 20px; font-weight: bold; color: #1f2937;">
+                                            {{ date_obj | polish_date_format }}
+                                        </h2>
+                                    </td>
+                                </tr>
+                            </table>
+                            {%- endif %}
+
                             <!-- Section card -->
-                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 5px; background-color: #f8fafb; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; overflow: hidden;">
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 20px; background-color: #f8fafb; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; overflow: hidden;">
                                 <!-- Section header -->
                                 <tr>
                                     <td style="padding: 20px 20px 12px 20px; border-bottom: 1px solid rgba(102, 126, 234, 0.08);">
-                                        <h3 style="margin: 0; font-weight: 600; color: #1f2937; font-size: 18px;">
-                                            {{ main_title }}
+                                        {%- set main_title_url = date_items[0].url.split('#')[0] %}
+                                        <h3 style="margin: 0; font-weight: 600; color: #667eea; font-size: 18px;">
+                                            <a href="{{ main_title_url }}" style="color: #667eea; text-decoration: none;">
+                                                {{ main_title }}
+                                            </a>
                                         </h3>
-                                        <p style="margin: 4px 0 0 0; font-size: 13px; color: #6b7280; font-weight: 500;">
-                                            {{ group_items | length }} {% if group_items | length == 1 %}pozycja{%- else %}pozycje{% endif %}
-                                        </p>
                                     </td>
                                 </tr>
 
                                 <!-- Items list -->
                                 <tr>
                                     <td style="padding: 20px 20px 4px 20px;">
-                                        {%- for item in group_items %}
+                                        {%- for item in date_items %}
                                         <!-- Item card -->
                                         <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 16px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e5e7eb;">
                                             <tr>
                                                 <td style="padding: 16px;">
-                                                    <!-- Item title with status indicator -->
+                                                    <!-- Item title with icon -->
                                                     <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                                         <tr>
                                                             <td style="padding-bottom: 8px;">
-                                                                <h4 style="margin: 0; font-size: 15px; font-weight: 600; color: #1f2937; line-height: 1.4;">
-                                                                    <a href="{{ item.url }}" style="color: #374151; text-decoration: none;">
-                                                                        {{ item.title or item.url }}
-                                                                    </a>
-                                                                </h4>
+                                                                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                                                    <tr>
+                                                                        <td style="width: 24px; vertical-align: top;">
+                                                                            <span style="font-size: 14px;">
+                                                                                {%- if item.attachment_url %}📎{%- else %}📄{%- endif %}
+                                                                            </span>
+                                                                        </td>
+                                                                        <td style="vertical-align: top; padding-top: 0px;">
+                                                                            <h4 style="margin: 0; font-size: 15px; font-weight: 600; color: #1f2937; line-height: 1.4;">
+                                                                                <a href="{{ item.url }}" style="color: #374151; text-decoration: none;">
+                                                                                    {{ item.title or item.url }}
+                                                                                </a>
+                                                                            </h4>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
                                                             </td>
                                                         </tr>
                                                     </table>
 
-                                                    <!-- Item meta and action -->
+                                                    <!-- Item description -->
+                                                    {%- if item.description %}
+                                                    <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                                        <tr>
+                                                            <td style="padding-bottom: 12px;">
+                                                                <p style="margin: 0; font-size: 14px; color: #6b7280; line-height: 1.5;">
+                                                                    {{ item.description }}
+                                                                </p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                    {%- endif %}
+
+                                                    <!-- Item meta and action buttons -->
                                                     <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                                         <tr>
                                                             <td>
@@ -113,9 +153,22 @@
                                                                             {%- endif %}
                                                                         </td>
                                                                         <td style="text-align: right; vertical-align: middle;">
-                                                                            <a href="{{ item.url }}" style="display: inline-block; background-color: #667eea; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
-                                                                                Otwórz →
-                                                                            </a>
+                                                                            <table cellpadding="0" cellspacing="0" border="0" style="display: inline-table;">
+                                                                                <tr>
+                                                                                    {%- if item.attachment_url %}
+                                                                                    <td style="padding-right: 6px;">
+                                                                                        <a href="{{ item.attachment_url }}" style="display: inline-block; background-color: #6b7280; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                                                                                            Pobierz plik
+                                                                                        </a>
+                                                                                    </td>
+                                                                                    {%- endif %}
+                                                                                    <td>
+                                                                                        <a href="{{ item.url }}" style="display: inline-block; background-color: #667eea; color: #ffffff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 500;">
+                                                                                            Otwórz link
+                                                                                        </a>
+                                                                                    </td>
+                                                                                </tr>
+                                                                            </table>
                                                                         </td>
                                                                     </tr>
                                                                 </table>

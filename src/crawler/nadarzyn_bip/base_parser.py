@@ -2,7 +2,7 @@ import abc
 import logging
 from datetime import datetime
 from typing import Generator, Optional
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 from selectolax.lexbor import LexborHTMLParser, LexborNode
 
@@ -57,6 +57,15 @@ class BaseParser(abc.ABC):
         """Extract title from h3 element."""
         title_node = self._safe_get_node(node, "h3")
         return self._get_node_text_or_default(title_node) or default
+
+    def _get_anchor_href(self, node: Optional[LexborNode], url: str) -> Optional[str]:
+        """Extract href from anchor node."""
+        anchor_node = self._safe_get_node(node, "a[href]")
+        href = anchor_node.attributes.get("href") if anchor_node else None
+        href_parts = urlparse(href) if href else None
+        full_url = urljoin(url, href) if href_parts and not href_parts.netloc else href
+
+        return full_url
 
     def _get_anchor_from_url(self, url: str) -> str:
         """Extract anchor from URL fragment."""

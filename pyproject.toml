@@ -28,12 +28,12 @@ py-modules = ["main"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["src*"]
+include = ["src*", "tests*"]
 
 [tool.ruff]
 target-version = "py312"
 line-length = 120
-src = ["src", "."]
+src = ["src", "tests", "."]
 exclude = ["gh-pages/"]
 
 [tool.ruff.format]
