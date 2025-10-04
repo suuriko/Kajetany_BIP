@@ -12,6 +12,7 @@ Usage:
 
 import datetime
 import locale
+import logging
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -28,6 +29,8 @@ class HTMLGenerator:
     A flexible HTML generator that uses Jinja2 templates to create static HTML files
     from BIP content data.
     """
+
+    logger = logging.getLogger("html_generator")
 
     def __init__(self, templates_dir: str = "templates"):
         """
@@ -63,7 +66,7 @@ class HTMLGenerator:
         return value.strftime(format_str)
 
     @staticmethod
-    def _polish_date_format(value: datetime.date, format_str: str = "%-d %B %Y") -> str:
+    def _polish_date_format(value: datetime.date) -> str:
         """Format date to Polish format using locale."""
         if value is None:
             return "Nieznana"
@@ -73,14 +76,26 @@ class HTMLGenerator:
         try:
             # Try to set Polish locale
             locale.setlocale(locale.LC_TIME, "pl_PL.UTF-8")
-            return value.strftime(format_str)
+            return value.strftime("%-d %B %Y")
         except locale.Error:
-            # Fallback to original locale if Polish is not available
-            try:
-                locale.setlocale(locale.LC_TIME, original_locale)
-            except (locale.Error, TypeError):
-                pass
-            return value.strftime(format_str)
+            HTMLGenerator.logger.warning("Polish locale 'pl_PL.UTF-8' not available. The string mapping method.")
+            # Fallback: manual month mapping
+            months_pl = [
+                "stycznia",
+                "lutego",
+                "marca",
+                "kwietnia",
+                "maja",
+                "czerwca",
+                "lipca",
+                "sierpnia",
+                "września",
+                "października",
+                "listopada",
+                "grudnia",
+            ]
+            month = months_pl[value.month - 1]
+            return f"{value.day} {month} {value.year}"
         finally:
             # Always restore original locale
             try:
@@ -163,6 +178,7 @@ class HTMLGenerator:
 
         # Group items by date for timeline display
         items_by_date = self._group_items_by_date_and_main_title(items)
+        print(items_by_date)
 
         # Prepare template context
         context = {

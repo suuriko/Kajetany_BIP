@@ -19,8 +19,8 @@ def test_bip_report_generation():
 
     # Generate BIP report
     generator = HTMLGenerator()
-    output_path = generator.generate_report(
-        items=items,
+    output_path = generator.generate_from_csv(
+        csv_path="items.csv",
         output_path="tests/test_bip_report_output.html",
         template_name="bip_report.html",
         custom_context={
