@@ -12,6 +12,7 @@ Usage:
 
 import datetime
 import locale
+import logging
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -28,6 +29,8 @@ class HTMLGenerator:
     A flexible HTML generator that uses Jinja2 templates to create static HTML files
     from BIP content data.
     """
+
+    logger = logging.getLogger("html_generator")
 
     def __init__(self, templates_dir: str = "templates"):
         """
@@ -63,7 +66,7 @@ class HTMLGenerator:
         return value.strftime(format_str)
 
     @staticmethod
-    def _polish_date_format(value: datetime.date, format_str: str = "%-d %B %Y") -> str:
+    def _polish_date_format(value: datetime.date) -> str:
         """Format date to Polish format using locale."""
         if value is None:
             return "Nieznana"
@@ -73,14 +76,26 @@ class HTMLGenerator:
         try:
             # Try to set Polish locale
             locale.setlocale(locale.LC_TIME, "pl_PL.UTF-8")
-            return value.strftime(format_str)
+            return value.strftime("%-d %B %Y")
         except locale.Error:
-            # Fallback to original locale if Polish is not available
-            try:
-                locale.setlocale(locale.LC_TIME, original_locale)
-            except (locale.Error, TypeError):
-                pass
-            return value.strftime(format_str)
+            HTMLGenerator.logger.warning("Polish locale 'pl_PL.UTF-8' not available. The string mapping method.")
+            # Fallback: manual month mapping
+            months_pl = [
+                "stycznia",
+                "lutego",
+                "marca",
+                "kwietnia",
+                "maja",
+                "czerwca",
+                "lipca",
+                "sierpnia",
+                "września",
+                "października",
+                "listopada",
+                "grudnia",
+            ]
+            month = months_pl[value.month - 1]
+            return f"{value.day} {month} {value.year}"
         finally:
             # Always restore original locale
             try:
@@ -101,6 +116,44 @@ class HTMLGenerator:
     def _get_entry_type(item: ContentItem) -> str:
         """Determine if entry is new or updated based on dates."""
         return "aktualizacja" if item.last_modified_at else "nowy"
+
+    @staticmethod
+    def _group_items_by_date_and_main_title(items: List[ContentItem]) -> List[tuple[str, str, List[ContentItem]]]:
+        """
+        Group items by date and main_title, then sort them in descending order.
+
+        Args:
+            items: List of ContentItem objects to group
+
+        Returns:
+            List of tuples (date_string, main_title, items_list) sorted by date descending
+        """
+        # First group by date
+        items_by_date = defaultdict(list)
+
+        for item in items:
+            # Get the most relevant date for grouping
+            item_date = item.last_modified_at or item.created_at or item.published_at
+            if item_date:
+                date_str = item_date.strftime("%Y-%m-%d")
+                items_by_date[date_str].append(item)
+
+        # Now group by main_title within each date and flatten the structure
+        result = []
+        for date_str in sorted(items_by_date.keys(), reverse=True):
+            items_for_date = items_by_date[date_str]
+
+            # Group by main_title
+            items_by_title = defaultdict(list)
+            for item in items_for_date:
+                main_title = item.main_title or "Różne"
+                items_by_title[main_title].append(item)
+
+            # Add each group as a separate tuple
+            for main_title in sorted(items_by_title.keys()):
+                result.append((date_str, main_title, items_by_title[main_title]))
+
+        return result
 
     def generate_report(
         self,
@@ -123,11 +176,16 @@ class HTMLGenerator:
         """
         template = self.env.get_template(template_name)
 
+        # Group items by date for timeline display
+        items_by_date = self._group_items_by_date_and_main_title(items)
+        print(items_by_date)
+
         # Prepare template context
         context = {
             "page_title": "Biuletyn Informacji Publicznej - Nadarzyn",
             "subtitle": "Automatyczny monitoring komunikatów i ogłoszeń dla Kajetan",
             "items": items,
+            "items_by_date": items_by_date,
             "last_updated": datetime.datetime.now().strftime("%d.%m.%Y"),
             "generation_time": datetime.datetime.now(),
         }
@@ -199,15 +257,13 @@ class HTMLGenerator:
         """
         template = self.env.get_template(template_name)
 
-        # Group items by main_title
-        items_grouped = defaultdict(list)
-        for item in items:
-            main_title = item.main_title or "Różne"
-            items_grouped[main_title].append(item)
+        # Group items by date and main_title for timeline display
+        items_by_date = self._group_items_by_date_and_main_title(items)
 
         # Prepare context for email template
         context = {
-            "items_grouped": items_grouped,
+            "items": items,
+            "items_by_date": items_by_date,
             "total_count": len(items),
             "subject": "[BIP Bot] Nowe wpisy i aktualizacje dla Kajetan w BIP Nadarzyn",
             "generation_time": datetime.datetime.now(),
