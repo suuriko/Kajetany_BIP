@@ -47,9 +47,10 @@ jobs:
             - name: Commit and push items.csv if changed
               run: |
                     git add items.csv
+                    git add gh-pages/index.html
                     if git diff --cached --quiet; then
                         echo "No changes to commit."
                     else
-                        git commit -m "Update items.csv [auto]"
+                        git commit -m "Update items.csv and index.html [auto]"
                         git push origin dev
                     fi
